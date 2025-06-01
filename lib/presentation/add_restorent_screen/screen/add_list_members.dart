@@ -6,7 +6,8 @@ import 'package:hive_flutter/adapters.dart';
 class EmployeeListScreen extends StatefulWidget {
   final Restaurant restaurant;
 
-  const EmployeeListScreen({required this.restaurant, Key? key}) : super(key: key);
+  const EmployeeListScreen({required this.restaurant, Key? key})
+      : super(key: key);
 
   @override
   State<EmployeeListScreen> createState() => _EmployeeListScreenState();
@@ -16,7 +17,10 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   void _navigateToAddEmployee() async {
     final newEmployee = await Navigator.push<Employee>(
       context,
-      MaterialPageRoute(builder: (_) => AddEmployeeScreen()),
+      MaterialPageRoute(
+          builder: (_) => AddWorkerPositionScreen(
+                category: widget.restaurant.category,
+              )),
     );
 
     if (newEmployee != null) {
@@ -35,15 +39,46 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Employees")),
+      appBar: AppBar(
+        title: Text("Add Categories"),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
+          SizedBox(
+            height: 30,
+          ),
+          SizedBox(
+            width: 300,
+            height: 50,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF0B623),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: _navigateToAddEmployee,
+              child: const Text(
+                "Add Workers",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16),
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: widget.restaurant.employees.length,
               itemBuilder: (_, index) {
                 final emp = widget.restaurant.employees[index];
                 return ListTile(
+                  leading: CircleAvatar(
+                    child: Center(
+                      child: Text("${index}"),
+                    ),
+                  ),
                   title: Text(emp.name),
                   subtitle: Text(emp.role),
                 );
@@ -54,12 +89,6 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _navigateToAddEmployee,
-                    child: Text("+ Add Employee"),
-                  ),
-                ),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _saveToHive,
