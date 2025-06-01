@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+import '../../add_restorent_screen/screen/add_restorent.dart';
 import '../widget/custom_image.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -140,18 +141,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: const Color.fromARGB(255, 231, 167, 71)),
-                    child: const Center(
-                      child: Text(
-                        "Add New",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddNewCustomerScreen(),
+                          ));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: const Color.fromARGB(255, 231, 167, 71)),
+                      child: const Center(
+                        child: Text(
+                          "Add New",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ),
                   )
@@ -196,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.w500),
                         ),
-                        const SizedBox(  
+                        const SizedBox(
                           height: 10,
                         ),
                         Container(
