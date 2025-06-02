@@ -13,6 +13,7 @@ void main() async {
   Hive.init(appDocumentDir.path);
   Hive.registerAdapter(RestaurantAdapter());
   Hive.registerAdapter(EmployeeAdapter());
+  Hive.registerAdapter(UniformItemConfigAdapter());
 
   await Hive.openBox<Restaurant>('restaurants');
 
@@ -29,7 +30,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-       
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
