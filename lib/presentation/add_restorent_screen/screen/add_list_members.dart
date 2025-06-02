@@ -104,6 +104,11 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
               itemCount: widget.restaurant.employees.length,
               itemBuilder: (_, index) {
                 final emp = widget.restaurant.employees[index];
+                if (index == widget.restaurant.employees.length) {
+                  return SizedBox(
+                    height: 60,
+                  );
+                }
                 return Dismissible(
                   key: Key(emp.name + emp.position), // Unique key for each item
                   background: Container(
