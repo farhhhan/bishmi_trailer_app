@@ -1,4 +1,3 @@
-import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
 import 'package:bishmi_app/presentation/home_screen/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 

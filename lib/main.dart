@@ -1,4 +1,6 @@
+import 'package:bishmi_app/firebase_options.dart';
 import 'package:bishmi_app/presentation/splash_screen/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +17,11 @@ void main() async {
   Hive.registerAdapter(EmployeeAdapter());
 
   await Hive.openBox<Restaurant>('restaurants');
+ 
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+
 
   runApp(const MyApp());
 }
