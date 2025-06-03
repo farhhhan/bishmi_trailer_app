@@ -17,6 +17,7 @@ class RestaurantAdapter extends TypeAdapter<Restaurant> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Restaurant(
+      date: fields[4] as String,
       name: fields[0] as String,
       mobile: fields[1] as String,
       category: fields[2] as String,
@@ -27,13 +28,15 @@ class RestaurantAdapter extends TypeAdapter<Restaurant> {
   @override
   void write(BinaryWriter writer, Restaurant obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.mobile)
       ..writeByte(2)
       ..write(obj.category)
+      ..writeByte(4)
+      ..write(obj.date)
       ..writeByte(3)
       ..write(obj.employees);
   }
@@ -60,22 +63,28 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Employee(
+      feedBack: fields[4] as String,
       name: fields[0] as String,
       position: fields[1] as String,
       uniformConfig: (fields[2] as List).cast<UniformItemConfig>(),
+      gender: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Employee obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.position)
       ..writeByte(2)
-      ..write(obj.uniformConfig);
+      ..write(obj.uniformConfig)
+      ..writeByte(3)
+      ..write(obj.gender)
+      ..writeByte(4)
+      ..write(obj.feedBack);
   }
 
   @override
