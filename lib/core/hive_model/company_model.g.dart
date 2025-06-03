@@ -105,13 +105,17 @@ class UniformItemConfigAdapter extends TypeAdapter<UniformItemConfig> {
       isReadyMade: fields[2] as bool,
       selectedSize: fields[3] as String?,
       measurements: (fields[4] as Map).cast<String, String>(),
+      sleeveType: fields[5] as String?,
+      tshirtStyle: fields[6] as String?,
+      materialType: fields[7] as String?,
+      capStyle: fields[8] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UniformItemConfig obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.itemName)
       ..writeByte(1)
@@ -121,7 +125,15 @@ class UniformItemConfigAdapter extends TypeAdapter<UniformItemConfig> {
       ..writeByte(3)
       ..write(obj.selectedSize)
       ..writeByte(4)
-      ..write(obj.measurements);
+      ..write(obj.measurements)
+      ..writeByte(5)
+      ..write(obj.sleeveType)
+      ..writeByte(6)
+      ..write(obj.tshirtStyle)
+      ..writeByte(7)
+      ..write(obj.materialType)
+      ..writeByte(8)
+      ..write(obj.capStyle);
   }
 
   @override

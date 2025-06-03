@@ -75,10 +75,11 @@ class EmployeeDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 columnWidths: const {
-                  0: FlexColumnWidth(2),
-                  1: FlexColumnWidth(1),
-                  2: FlexColumnWidth(2),
+                  0: FlexColumnWidth(1.5), // Uniform Item
+                  1: FlexColumnWidth(1.5), // Type & Material
+                  2: FlexColumnWidth(2), // Details
                 },
+                // defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 children: [
                   // Table header
                   TableRow(
@@ -91,7 +92,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
                     ),
                     children: [
                       _buildHeaderCell('Uniform Item'),
-                      _buildHeaderCell('Type'),
+                      _buildHeaderCell('Type & Material'),
                       _buildHeaderCell('Details'),
                     ],
                   ),
@@ -106,11 +107,8 @@ class EmployeeDetailsScreen extends StatelessWidget {
                       ),
                       children: [
                         _buildDataCell(config.itemName),
-                        _buildDataCell(
-                            config.isReadyMade ? 'Ready Made' : 'Tailored'),
-                        _buildDataCell(config.isReadyMade
-                            ? 'Size: ${config.selectedSize ?? 'N/A'}'
-                            : _buildMeasurementsText(config.measurements)),
+                        _buildTypeAndMaterialCell(config),
+                        _buildDetailsCell(config),
                       ],
                     );
                   }).toList(),
@@ -130,7 +128,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
         text,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 16,
+          fontSize: 14,
         ),
         textAlign: TextAlign.center,
       ),
@@ -139,24 +137,132 @@ class EmployeeDetailsScreen extends StatelessWidget {
 
   Widget _buildDataCell(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 14),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildDataCell(Widget widget) {
+  Widget _buildTypeAndMaterialCell(UniformItemConfig config) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: widget,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            config.isReadyMade ? 'Ready Made' : 'Fabric Only',
+            style: TextStyle(
+              color: config.isReadyMade
+                  ? Colors.blue.shade800
+                  : Colors.green.shade800,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+          Divider(
+            thickness: 1,
+          ),
+          const SizedBox(height: 6),
+          if (config.materialType != null && config.materialType!.isNotEmpty)
+            Text(
+              config.materialType!,
+              style: const TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+        ],
+      ),
     );
   }
 
-  String _buildMeasurementsText(Map<String, String> measurements) {
-    if (measurements.isEmpty) return 'No measurements';
+  Widget _buildDetailsCell(UniformItemConfig config) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Size or measurements
+          if (config.isReadyMade &&
+              config.selectedSize != null &&
+              config.selectedSize!.isNotEmpty)
+            _buildDetailRow('Size', config.selectedSize!),
 
-    return measurements.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+          if (!config.isReadyMade && config.measurements.isNotEmpty)
+            _buildMeasurementsSection(config.measurements),
+
+          // Additional options
+          if (config.itemName.toLowerCase().contains('shirt') ||
+              config.itemName.toLowerCase().contains('coat') ||
+              config.itemName.toLowerCase().contains('jacket'))
+            if (config.sleeveType != null && config.sleeveType!.isNotEmpty)
+              _buildDetailRow('Sleeve Type', config.sleeveType!),
+
+          if (config.itemName.toLowerCase().contains('t-shirt') ||
+              config.itemName.toLowerCase().contains('tshirt'))
+            if (config.tshirtStyle != null && config.tshirtStyle!.isNotEmpty)
+              _buildDetailRow('T-Shirt Style', config.tshirtStyle!),
+
+          if (config.itemName.toLowerCase().contains('cap') ||
+              config.itemName.toLowerCase().contains('hat') ||
+              config.itemName.toLowerCase().contains('net'))
+            if (config.capStyle != null && config.capStyle!.isNotEmpty)
+              _buildDetailRow('Cap Style', config.capStyle!),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4, top: 10),
+      child: Column(
+        children: [
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(
+                  text: '$label: ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: value),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMeasurementsSection(Map<String, String> measurements) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Measurements:',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+        ...measurements.entries.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 8, top: 2),
+            child: Text(
+              '${entry.key}: ${entry.value}',
+              style: const TextStyle(fontSize: 12),
+            ),
+          );
+        }).toList(),
+      ],
+    );
   }
 }

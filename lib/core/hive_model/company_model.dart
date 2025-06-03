@@ -58,12 +58,29 @@ class UniformItemConfig {
   @HiveField(4)
   final Map<String, String> measurements;
 
+  // New fields for additional options
+  @HiveField(5)
+  final String? sleeveType;      // 'Half Sleeve' or 'Full Sleeve'
+
+  @HiveField(6)
+  final String? tshirtStyle;     // 'Polo' or 'Regular'
+
+  @HiveField(7)
+  final String? materialType;    // Material type for all items
+
+  @HiveField(8)
+  final String? capStyle;        // 'Cap' or 'Net'
+
   UniformItemConfig({
     required this.itemName,
     required this.isNeeded,
     required this.isReadyMade,
     this.selectedSize,
     required this.measurements,
+    this.sleeveType,
+    this.tshirtStyle,
+    this.materialType,
+    this.capStyle,
   });
 }
 
@@ -203,6 +220,10 @@ class UniformItem {
   bool isReadyMade;
   String? selectedSize;
   Map<String, String> measurements;
+  String? sleeveType;      // 'Half Sleeve' or 'Full Sleeve'
+  String? tshirtStyle;     // 'Polo' or 'Regular'
+  String? materialType;    // Material type for all items
+  String? capStyle;        // 'Cap' or 'Net'
 
   UniformItem({
     required this.name,
@@ -210,6 +231,10 @@ class UniformItem {
     this.isReadyMade = true,
     this.selectedSize,
     Map<String, String>? measurements,
+    this.sleeveType,
+    this.tshirtStyle,
+    this.materialType,
+    this.capStyle,
   }) : measurements = measurements ?? {};
 }
 
