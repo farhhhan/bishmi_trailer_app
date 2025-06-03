@@ -1,8 +1,7 @@
-
-
 import 'package:bishmi_app/presentation/auth_screen/signup_screen.dart/signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/images/constant_images.dart';
@@ -41,7 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _checkFields() {
     setState(() {
-      _areFieldsFilled = _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+      _areFieldsFilled = _emailController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty;
     });
   }
 
@@ -53,16 +53,14 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
       } on FirebaseAuthException catch (e) {
         String errorMessage = 'Login failed';
         if (e.code == 'user-not-found') {
@@ -79,10 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
+          SnackBar(
+              content: Text('An unexpected error occurred: ${e.toString()}')),
         );
-      }
-      finally {
+      } finally {
         if (mounted) setState(() => _isLoading = false);
       }
     }
@@ -95,347 +93,363 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenHeight = mediaQuery.size.height;
 
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Positioned(
-            top: screenHeight * 0.45,
-            left: 0,
-            right: 0,
-            child: CustomEllipse(
-              width: screenWidth * 1.5,
-              height: screenHeight * 0.6,
-              colors: const [
-                Color.fromARGB(255, 175, 222, 224),
-                Color.fromARGB(255, 175, 222, 224),
-              ],
-              x: screenWidth * 0.5,
-              y: screenHeight * 0.5,
-              shadowBlurRadius: 0.5,
-              shadowOffset: const Offset(1, 1),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(height: screenHeight * 0.05),
-                  Image.asset(
-                      width: screenWidth * 0.5, height: screenHeight * 0.15, ConstantImages.bishmi_logo, fit: BoxFit.contain),
-                  const SizedBox(height: 20),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Login',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 26, 182, 187),
-                              fontSize: 28,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          'Please login and continue',
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      cursorColor: const Color.fromARGB(255, 26, 182, 187),
-                      decoration: InputDecoration(
-                        hintText: 'User Id',
-                        prefixIcon: const Icon(Icons.person_outline, color: Colors.grey),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 15.0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color.fromARGB(255, 26, 182, 187), width: 1.5),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Colors.red, width: 1.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your User Id';
-                        }
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return 'Please enter a valid email as User Id';
-                        }
-                        return null;
-                      },
-                    ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    cursorColor: const Color.fromARGB(255, 26, 182, 187),
-                    decoration: InputDecoration(
-                      hintText: 'Pass word',
-                      prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                           color: Colors.grey,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 15.0),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Color.fromARGB(255, 26, 182, 187), width: 1.5),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Colors.red, width: 1.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-                        ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        // TODO: Implement Forgot Password
-                      },
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(color: Colors.blueAccent, fontSize: 14),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 25, left: 20, right: 20, top: 20),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 175, 222, 224),
-                 borderRadius: const BorderRadius.only(
-                   topLeft: Radius.circular(30),
-                   topRight: Radius.circular(30),
-                 )
-              ),
-              child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                    onPressed: _areFieldsFilled && !_isLoading ? _onLoginPressed : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _areFieldsFilled 
-                          ? const Color.fromARGB(255, 224, 226, 213)
-                          : const Color.fromARGB(255, 224, 226, 213).withOpacity(0.5),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      minimumSize: const Size(double.infinity, 50),
-                      elevation: _areFieldsFilled ? 2 : 0, 
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 24, 
-                            height: 24, 
-                            child: CircularProgressIndicator(strokeWidth: 3, valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 78, 161, 209))))
-                        : Text(
-                            "Login",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: _areFieldsFilled 
-                                ? const Color.fromARGB(255, 112, 112, 112)
-                                : Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
+        onWillPop: () async => false,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Stack(
+            children: [
+            
+
+              SafeArea(
+                child: SingleChildScrollView( // Ensures content is scrollable
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                    child: Form(
+                      key: _formKey,
+                      child: Container( // Use a container to set a minimum height
+                        height: screenHeight * 0.9, // Ensure it takes at least screen height
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            //SizedBox(height: screenHeight * 0.05),
+                            Image.asset(
+                                width: screenWidth * 0.8,
+                                height: screenHeight * 0.30,
+                                ConstantImages.bishmi_logo,
+                                fit: BoxFit.contain),
+
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Login',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color.fromARGB(255, 23, 156, 161),
+                                    ),
+                                  ),
+                                  Text('''Please login and 
+continue''',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w300,
+                                        color: const Color.fromARGB(255, 79, 79, 79),
+                                      )),
+                                ],
+                              ),
                             ),
-                          ),
-                  ),
-                const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account? ", style: TextStyle(color: Colors.black87, fontSize: 14)),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) =>  SignupScreen1()),
-                        );
-                      },
-                      child: const Text(
-                        'Connect',
-                        style: TextStyle(color: Color.fromARGB(255, 26, 182, 187), fontWeight: FontWeight.bold, fontSize: 14),
+                            const SizedBox(height: 30),
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              cursorColor: const Color.fromARGB(255, 26, 182, 187),
+                              decoration: InputDecoration(
+                                hintText: 'User Id',
+                                labelText: 'User Id',
+                                prefixIcon: const Icon(Icons.person_outline,
+                                    color: Colors.black),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 18.0, horizontal: 15.0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: BorderSide(
+                                    color: const Color.fromARGB(255, 36, 107, 126),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: const BorderSide(
+                                      color: Color.fromARGB(255, 26, 182, 187),
+                                      width: 1.5),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red, width: 1.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red, width: 1.5),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your User Id';
+                                }
+                                if (!value.contains('@') || !value.contains('.')) {
+                                  return 'Please enter a valid email as User Id';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              cursorColor: const Color.fromARGB(255, 26, 182, 187),
+                              decoration: InputDecoration(
+                                hintText: 'Pass word',
+                                labelText: 'Password',
+                                prefixIcon: const Icon(Icons.lock_outline,
+                                    color: Colors.black),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 18.0, horizontal: 15.0),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: BorderSide(
+                                      color: const Color.fromARGB(255, 36, 107, 126),
+                                      width: 1.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide: const BorderSide(
+                                      color: Color.fromARGB(255, 26, 182, 187),
+                                      width: 1.5),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red, width: 1.0),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(9),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red, width: 1.5),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  // TODO: Implement forgot password
+                                },
+                                child: const Text(
+                                  'Forgot password?',
+                                  style: TextStyle(
+                                      color: Colors.blueAccent, fontSize: 14),
+                                ),
+                              ),
+                            ),
+                            const Spacer(), // Pushes content below to the bottom
+                            
+                            // Login Button
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical:10.0), // Reduced vertical padding
+                              child: ElevatedButton(
+                                onPressed: _areFieldsFilled && !_isLoading
+                                    ? _onLoginPressed
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _areFieldsFilled
+                                      ? Colors.orangeAccent 
+                                      : const Color.fromARGB(255, 171, 139, 97)
+                                          .withOpacity(0.5),
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(9),
+                                  ),
+                                  minimumSize: const Size(double.infinity, 50),
+                                  elevation: _areFieldsFilled ? 2 : 0,
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 3,
+                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                                Color.fromARGB(255, 78, 161, 209))))
+                                    : Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: _areFieldsFilled
+                                              ? Colors.white
+                                              : Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+
+                            // "Don't have an account?" Text
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text("Don't have an account? ",
+                                    style:
+                                        TextStyle(color: Colors.black87, fontSize: 14)),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => SignupScreen1()),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Connect',
+                                    style: TextStyle(
+                                        color: Color.fromARGB(255, 41, 89, 233),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20), // Bottom spacing
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ]),
-            ), 
-           ),
-        ],
-      ),
-    ));
+              ),
+            ],
+          ),
+        ));
   }
 }
 
-/// Draws an ellipse with a linear gradient fill and optional blurred shadow.
-class CustomEllipse extends StatelessWidget {
-  final double width;
-  final double height;
-  final List<Color> colors;
-  final double x;
-  final double y;
-  final double shadowBlurRadius;
-  final Offset shadowOffset;
+// /// Draws an ellipse with a linear gradient fill and optional blurred shadow.
+// class CustomEllipse extends StatelessWidget {
+//   final double width;
+//   final double height;
+//   final List<Color> colors;
+//   final double x;
+//   final double y;
+//   final double shadowBlurRadius;
+//   final Offset shadowOffset;
 
-  const CustomEllipse({
-    Key? key,
-    required this.width,
-    required this.height,
-    required this.colors,
-    required this.x,
-    required this.y,
-    this.shadowBlurRadius = 10.0,
-    this.shadowOffset = const Offset(5.0, 5.0),
-  }) : super(key: key);
+//   const CustomEllipse({
+//     Key? key,
+//     required this.width,
+//     required this.height,
+//     required this.colors,
+//     required this.x,
+//     required this.y,
+//     this.shadowBlurRadius = 10.0,
+//     this.shadowOffset = const Offset(5.0, 5.0),
+//   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: CustomPaint(
-        painter: _EllipsePainter(
-          width: width,
-          height: height,
-          colors: colors,
-          x: x,
-          y: y,
-          shadowBlurRadius: shadowBlurRadius,
-          shadowOffset: shadowOffset,
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: CustomPaint(
+//         painter: _EllipsePainter(
+//           width: width,
+//           height: height,
+//           colors: colors,
+//           x: x,
+//           y: y,
+//           shadowBlurRadius: shadowBlurRadius,
+//           shadowOffset: shadowOffset,
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class _EllipsePainter extends CustomPainter {
-  final double width;
-  final double height;
-  final List<Color> colors;
-  final double x;
-  final double y;
-  final double shadowBlurRadius;
-  final Offset shadowOffset;
+// class _EllipsePainter extends CustomPainter {
+//   final double width;
+//   final double height;
+//   final List<Color> colors;
+//   final double x;
+//   final double y;
+//   final double shadowBlurRadius;
+//   final Offset shadowOffset;
 
-  _EllipsePainter({
-    required this.width,
-    required this.height,
-    required this.colors,
-    required this.x,
-    required this.y,
-    required this.shadowBlurRadius,
-    required this.shadowOffset,
-  });
+//   _EllipsePainter({
+//     required this.width,
+//     required this.height,
+//     required this.colors,
+//     required this.x,
+//     required this.y,
+//     required this.shadowBlurRadius,
+//     required this.shadowOffset,
+//   });
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
-      ..style = PaintingStyle.fill
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadowBlurRadius);
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final shadowPaint = Paint()
+//       ..color = Colors.black.withOpacity(0.3)
+//       ..style = PaintingStyle.fill
+//       ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadowBlurRadius);
 
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(x + shadowOffset.dx, y + shadowOffset.dy),
-        width: width,
-        height: height,
-      ),
-      shadowPaint,
-    );
+//     canvas.drawOval(
+//       Rect.fromCenter(
+//         center: Offset(x + shadowOffset.dx, y + shadowOffset.dy),
+//         width: width,
+//         height: height,
+//       ),
+//       shadowPaint,
+//     );
 
-    final ellipsePaint = Paint()
-      ..shader = LinearGradient(
-        colors: colors,
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(
-        Rect.fromCenter(
-          center: Offset(x, y),
-          width: width,
-          height: height,
-        ),
-      )
-      ..style = PaintingStyle.fill;
+//     final ellipsePaint = Paint()
+//       ..shader = LinearGradient(
+//         colors: colors,
+//         begin: Alignment.topLeft,
+//         end: Alignment.bottomRight,
+//       ).createShader(
+//         Rect.fromCenter(
+//           center: Offset(x, y),
+//           width: width,
+//           height: height,
+//         ),
+//       )
+//       ..style = PaintingStyle.fill;
 
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(x, y),
-        width: width,
-        height: height,
-      ),
-      ellipsePaint,
-    );
-  }
+//     canvas.drawOval(
+//       Rect.fromCenter(
+//         center: Offset(x, y),
+//         width: width,
+//         height: height,
+//       ),
+//       ellipsePaint,
+//     );
+//   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
