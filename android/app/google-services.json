@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "411005340760",
+    "project_id": "bismi-16619",
+    "storage_bucket": "bismi-16619.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411005340760:android:a7f38584e24b7cf9674e2d",
+        "android_client_info": {
+          "package_name": "com.example.bishmi_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc__gpigWAwpbt_4Bj4-Ao13jPMTguk7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

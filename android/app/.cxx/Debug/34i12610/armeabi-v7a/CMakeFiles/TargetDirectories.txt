@@ -1,0 +1,2 @@
+C:/Users/HP/Desktop/medicine_formulary/bishmi_trailer_app/android/app/.cxx/Debug/34i12610/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/HP/Desktop/medicine_formulary/bishmi_trailer_app/android/app/.cxx/Debug/34i12610/armeabi-v7a/CMakeFiles/rebuild_cache.dir
