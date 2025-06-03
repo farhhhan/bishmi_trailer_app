@@ -2,6 +2,7 @@ import 'package:bishmi_app/presentation/auth_screen/signup_screen.dart/signup_sc
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../constant/images/constant_images.dart';
@@ -192,7 +193,7 @@ continue''',
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 20),
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
@@ -291,13 +292,12 @@ continue''',
                                   elevation: _areFieldsFilled ? 2 : 0,
                                 ),
                                 child: _isLoading
-                                    ? const SizedBox(
-                                        width: 24,
+                                    ?  SizedBox(
+                                        width: 50,
                                         height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 3,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                                Color.fromARGB(255, 78, 161, 209))))
+                                        child:LoadingAnimationWidget.horizontalRotatingDots(
+                                          color: Colors.orange, size: 40, 
+                                        ))
                                     : Text(
                                         "Login",
                                         style: TextStyle(
