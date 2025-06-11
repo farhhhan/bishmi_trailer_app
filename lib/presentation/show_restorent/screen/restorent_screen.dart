@@ -1,5 +1,6 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_list_members.dart';
+import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_restorent.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -341,47 +342,52 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
 
   void _navigateToEditRestaurant(Restaurant restaurant) {
     // Implement navigation to your edit restaurant screen
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => EditRestaurantScreen(restaurant: restaurant)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => AddNewCustomerScreen(restaurant: restaurant, isEdit: true,)));
   }
 
   void _showRestaurantDetails(Restaurant restaurant) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return _RestaurantDetailsBottomSheet(restaurant: restaurant);
-    },
-  );
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return _RestaurantDetailsBottomSheet(restaurant: restaurant);
+      },
+    );
+  }
 }
 
-
-}
 class _RestaurantDetailsBottomSheet extends StatefulWidget {
   final Restaurant restaurant;
-  
+
   const _RestaurantDetailsBottomSheet({required this.restaurant});
 
   @override
-  State<_RestaurantDetailsBottomSheet> createState() => _RestaurantDetailsBottomSheetState();
+  State<_RestaurantDetailsBottomSheet> createState() =>
+      _RestaurantDetailsBottomSheetState();
 }
 
-class _RestaurantDetailsBottomSheetState extends State<_RestaurantDetailsBottomSheet> {
+class _RestaurantDetailsBottomSheetState
+    extends State<_RestaurantDetailsBottomSheet> {
   // Filter variables
   String searchQuery = '';
   String genderFilter = 'All';
   String typeFilter = 'All';
   String sortOrder = 'A-Z';
-  
+
   final TextEditingController _searchController = TextEditingController();
 
   // Function to get filtered and sorted employees
   List<Employee> getFilteredEmployees() {
     List<Employee> filtered = widget.restaurant.employees.where((employee) {
-      bool matchesSearch = searchQuery.isEmpty || 
+      bool matchesSearch = searchQuery.isEmpty ||
           employee.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
           employee.position.toLowerCase().contains(searchQuery.toLowerCase());
-      bool matchesGender = genderFilter == 'All' || employee.gender == genderFilter;
+      bool matchesGender =
+          genderFilter == 'All' || employee.gender == genderFilter;
       bool matchesType = typeFilter == 'All' || employee.position == typeFilter;
       return matchesSearch && matchesGender && matchesType;
     }).toList();
@@ -392,7 +398,7 @@ class _RestaurantDetailsBottomSheetState extends State<_RestaurantDetailsBottomS
     } else {
       filtered.sort((a, b) => b.name.compareTo(a.name));
     }
-    
+
     return filtered;
   }
 
@@ -406,279 +412,296 @@ class _RestaurantDetailsBottomSheetState extends State<_RestaurantDetailsBottomS
   Widget build(BuildContext context) {
     List<Employee> filteredEmployees = getFilteredEmployees();
 
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.9,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
             ),
+          ),
+
+          // Header Section
+          Container(
+            padding: const EdgeInsets.all(10),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Handle bar
+                // Restaurant name and close button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.restaurant.name,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.restaurant.employees.length.toString() +
+                                ' Employees',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Stats Row - Shows filtered results
+                Row(
+                  children: [
+                    _buildStatItem(
+                      icon: Icons.people,
+                      count: filteredEmployees.length.toString(),
+                      label: searchQuery.isNotEmpty ||
+                              genderFilter != 'All' ||
+                              typeFilter != 'All'
+                          ? 'Found'
+                          : 'Total',
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(width: 20),
+                    _buildStatItem(
+                      icon: Icons.male,
+                      count: filteredEmployees
+                          .where((e) => e.gender == 'Male')
+                          .length
+                          .toString(),
+                      label: 'Male',
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 20),
+                    _buildStatItem(
+                      icon: Icons.female,
+                      count: filteredEmployees
+                          .where((e) => e.gender == 'Female')
+                          .length
+                          .toString(),
+                      label: 'Female',
+                      color: Colors.pink,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Search Bar
                 Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  width: 40,
-                  height: 4,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search by name or position...',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.grey),
+                              onPressed: () {
+                                setState(() {
+                                  searchQuery = '';
+                                  _searchController.clear();
+                                });
+                              },
+                            )
+                          : null,
+                    ),
                   ),
                 ),
-                
-                // Header Section
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                const SizedBox(height: 16),
+
+                // Filter Row
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
                     children: [
-                      // Restaurant name and close button
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.restaurant.name,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  widget.restaurant.employees.length.toString() + ' Employees',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.grey),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
+                      _buildFilterChip(
+                        'Gender',
+                        genderFilter,
+                        ['All', 'Male', 'Female'],
+                        (value) => setState(() => genderFilter = value),
                       ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Stats Row - Shows filtered results
-                      Row(
-                        children: [
-                          _buildStatItem(
-                            icon: Icons.people,
-                            count: filteredEmployees.length.toString(),
-                            label: searchQuery.isNotEmpty || genderFilter != 'All' || typeFilter != 'All' 
-                                ? 'Found' : 'Total',
-                            color: Colors.blue,
-                          ),
-                          const SizedBox(width: 20),
-                          _buildStatItem(
-                            icon: Icons.male,
-                            count: filteredEmployees.where((e) => e.gender == 'Male').length.toString(),
-                            label: 'Male',
-                            color: Colors.green,
-                          ),
-                          const SizedBox(width: 20),
-                          _buildStatItem(
-                            icon: Icons.female,
-                            count: filteredEmployees.where((e) => e.gender == 'Female').length.toString(),
-                            label: 'Female',
-                            color: Colors.pink,
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // Search Bar
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) {
-                            setState(() {
-                              searchQuery = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Search by name or position...',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            border: InputBorder.none,
-                            prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                            suffixIcon: searchQuery.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, color: Colors.grey),
-                                    onPressed: () {
-                                      setState(() {
-                                        searchQuery = '';
-                                        _searchController.clear();
-                                      });
-                                    },
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Filter Row
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildFilterChip(
-                              'Gender',
-                              genderFilter,
-                              ['All', 'Male', 'Female'],
-                              (value) => setState(() => genderFilter = value),
-                            ),
-                            const SizedBox(width: 12),
-                         
-                            const SizedBox(width: 12),
-                            _buildFilterChip(
-                              'Sort',
-                              sortOrder,
-                              ['A-Z', 'Z-A'],
-                              (value) => setState(() => sortOrder = value),
-                            ),
-                          ],
-                        ),
+                      const SizedBox(width: 12),
+                      const SizedBox(width: 12),
+                      _buildFilterChip(
+                        'Sort',
+                        sortOrder,
+                        ['A-Z', 'Z-A'],
+                        (value) => setState(() => sortOrder = value),
                       ),
                     ],
                   ),
                 ),
-                
-                // Divider
-                Container(
-                  height: 1,
-                  color: Colors.grey.shade200,
-                ),
-                
-                // Employee List
-                Expanded(
-                  child: filteredEmployees.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                searchQuery.isNotEmpty ? Icons.search_off : Icons.people_outline,
-                                size: 48,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                searchQuery.isNotEmpty 
-                                    ? 'No employees found for "$searchQuery"'
-                                    : 'No employees match the selected filters',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              if (searchQuery.isNotEmpty || genderFilter != 'All' || typeFilter != 'All')
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12),
-                                  child: TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        searchQuery = '';
-                                        genderFilter = 'All';
-                                        typeFilter = 'All';
-                                        _searchController.clear();
-                                      });
-                                    },
-                                    child: const Text('Clear all filters'),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(20),
-                          itemCount: filteredEmployees.length,
-                          itemBuilder: (context, index) {
-                            final employee = filteredEmployees[index];
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade200,
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                leading: CircleAvatar(
-                                  radius: 24,
-                                  backgroundColor: _getAvatarColor(employee.gender),
-                                  child: Text(
-                                    employee.name.isNotEmpty ? employee.name[0].toUpperCase() : '?',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  employee.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      employee.position,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        _buildTag(employee.gender, _getGenderColor(employee.gender)),
-                                        const SizedBox(width: 8),
-                                        _buildTag(employee.position, Colors.blue.shade100),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                trailing: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.grey,
-                                  size: 16,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                ),
               ],
             ),
-          );
+          ),
+
+          // Divider
+          Container(
+            height: 1,
+            color: Colors.grey.shade200,
+          ),
+
+          // Employee List
+          Expanded(
+            child: filteredEmployees.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          searchQuery.isNotEmpty
+                              ? Icons.search_off
+                              : Icons.people_outline,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          searchQuery.isNotEmpty
+                              ? 'No employees found for "$searchQuery"'
+                              : 'No employees match the selected filters',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        if (searchQuery.isNotEmpty ||
+                            genderFilter != 'All' ||
+                            typeFilter != 'All')
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  searchQuery = '';
+                                  genderFilter = 'All';
+                                  typeFilter = 'All';
+                                  _searchController.clear();
+                                });
+                              },
+                              child: const Text('Clear all filters'),
+                            ),
+                          ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: filteredEmployees.length,
+                    itemBuilder: (context, index) {
+                      final employee = filteredEmployees[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade200,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: _getAvatarColor(employee.gender),
+                            child: Text(
+                              employee.name.isNotEmpty
+                                  ? employee.name[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            employee.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text(
+                                employee.position,
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  _buildTag(employee.gender,
+                                      _getGenderColor(employee.gender)),
+                                  const SizedBox(width: 8),
+                                  _buildTag(
+                                      employee.position, Colors.blue.shade100),
+                                ],
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.grey,
+                            size: 16,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

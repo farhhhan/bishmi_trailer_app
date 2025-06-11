@@ -12,19 +12,46 @@ class Restaurant extends HiveObject {
   @HiveField(2)
   final String category;
 
-  @HiveField(4)
+  @HiveField(3)
   final String date;
 
-  @HiveField(3)
+  @HiveField(4)
+  final String address;
+
+  @HiveField(5)
   final List<Employee> employees;
 
+  @HiveField(6)
+  final String companyId;
+
   Restaurant({
-    required this.date,
+    required this.companyId,
     required this.name,
     required this.mobile,
     required this.category,
+    required this.date,
+    required this.address,
     required this.employees,
   });
+
+  Restaurant copyWith(
+      {String? name,
+      String? mobile,
+      String? category,
+      String? date,
+      String? address,
+      List<Employee>? employees,
+      String? companyId}) {
+    return Restaurant(
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      mobile: mobile ?? this.mobile,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      address: address ?? this.address,
+      employees: employees ?? List.from(this.employees),
+    );
+  }
 }
 
 @HiveType(typeId: 1)

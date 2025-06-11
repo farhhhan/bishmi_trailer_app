@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'add_list_members.dart';
 
 class AddNewCustomerScreen extends StatefulWidget {
+  final Restaurant? restaurant; // Null means adding new, non-null means editing
+  bool isEdit;
+  AddNewCustomerScreen({this.restaurant, Key? key, required this.isEdit})
+      : super(key: key);
+
   @override
   _AddNewCustomerScreenState createState() => _AddNewCustomerScreenState();
 }
@@ -18,6 +23,32 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
   String? selectedCategory;
   DateTime? selectedDate;
   final categories = ['Restaurant', 'School', 'Office', 'Hospital', 'Hotel'];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // If editing an existing restaurant, populate the fields
+    if (widget.restaurant != null) {
+      _restaurantController.text = widget.restaurant!.name;
+      _mobileController.text = widget.restaurant!.mobile;
+      _addressController.text = widget.restaurant!.address ?? '';
+      _dateController.text = widget.restaurant!.date;
+      selectedCategory = widget.restaurant!.category;
+
+      // Parse the existing date
+      try {
+        final parts = widget.restaurant!.date.split('/');
+        selectedDate = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } catch (e) {
+        selectedDate = DateTime.now();
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -38,10 +69,10 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFF0B623), // Header background color
-              onPrimary: Colors.white, // Header text color
+              primary: Color(0xFFF0B623),
+              onPrimary: Colors.white,
             ),
-            dialogBackgroundColor: Colors.white, // Background color
+            dialogBackgroundColor: Colors.white,
           ),
           child: child!,
         );
@@ -56,6 +87,38 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
     }
   }
 
+  void _handleNextOrSave() {
+    if (_formKey.currentState!.validate()) {
+      final restaurant = widget.restaurant != null
+          ? widget.restaurant!.copyWith(
+              date: _dateController.text,
+              name: _restaurantController.text,
+              mobile: _mobileController.text,
+              category: selectedCategory!,
+              address: _addressController.text,
+              companyId: widget.restaurant!.companyId)
+          : Restaurant(
+              companyId: DateTime.now().millisecondsSinceEpoch.toString(),
+              date: _dateController.text,
+              name: _restaurantController.text,
+              mobile: _mobileController.text,
+              category: selectedCategory!,
+              employees: [],
+              address: _addressController.text,
+            );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => EmployeeListScreen(
+            restaurant: restaurant,
+            isEditing: widget.isEdit,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,8 +127,8 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: const Text(
-          "Add New Customer",
+        title: Text(
+          widget.restaurant != null ? "Edit Customer" : "Add New Customer",
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -80,10 +143,7 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             // Customer Name
             const Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(
-                "Customer Name",
-                style: TextStyle(color: Colors.black),
-              ),
+              child: Text("Customer Name"),
             ),
             _buildTextField("Enter Customer Name", _restaurantController),
             const SizedBox(height: 20),
@@ -91,10 +151,7 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             // Mobile Number
             const Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(
-                "Mobile Number",
-                style: TextStyle(color: Colors.black),
-              ),
+              child: Text("Mobile Number"),
             ),
             _buildTextField("Enter Mobile Number", _mobileController,
                 inputType: TextInputType.phone),
@@ -103,10 +160,7 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             // Address
             const Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(
-                "Customer Address",
-                style: TextStyle(color: Colors.black),
-              ),
+              child: Text("Customer Address"),
             ),
             _buildTextField("Enter Address", _addressController),
             const SizedBox(height: 20),
@@ -114,10 +168,7 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             // Date Picker
             const Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(
-                "Scheduled Delivery Date",
-                style: TextStyle(color: Colors.black),
-              ),
+              child: Text("Scheduled Delivery Date"),
             ),
             const SizedBox(height: 10),
             _buildDatePickerField(context),
@@ -126,14 +177,11 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             // Category
             const Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(
-                "Choose Category",
-                style: TextStyle(color: Colors.black),
-              ),
+              child: Text("Choose Category"),
             ),
             const SizedBox(height: 10),
             _buildCategoryDropdown(),
-            const SizedBox(height: 60), // Extra space for button
+            const SizedBox(height: 60),
           ],
         ),
       ),
@@ -148,25 +196,9 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
             ),
             elevation: 4,
           ),
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              final restaurant = Restaurant(
-                date: _dateController.text,
-                name: _restaurantController.text,
-                mobile: _mobileController.text,
-                category: selectedCategory!,
-                employees: [],
-              );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => EmployeeListScreen(restaurant: restaurant),
-                ),
-              );
-            }
-          },
-          child: const Text(
-            "Next",
+          onPressed: _handleNextOrSave,
+          child: Text(
+            widget.restaurant != null ? "Save Changes" : "Next",
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
           ),
@@ -175,6 +207,9 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
+  // ... (keep the existing _buildTextField, _buildDatePickerField,
+  // and _buildCategoryDropdown methods unchanged)
 
   Widget _buildTextField(String label, TextEditingController controller,
       {TextInputType inputType = TextInputType.text}) {

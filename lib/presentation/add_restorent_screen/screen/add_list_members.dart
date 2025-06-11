@@ -8,23 +8,37 @@ import 'employee_detials.dart';
 
 class EmployeeListScreen extends StatefulWidget {
   final Restaurant restaurant;
+  final bool
+      isEditing; // Flag to determine if we're editing an existing restaurant
 
-  const EmployeeListScreen({required this.restaurant, Key? key})
-      : super(key: key);
+  const EmployeeListScreen({
+    required this.restaurant,
+    this.isEditing = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<EmployeeListScreen> createState() => _EmployeeListScreenState();
 }
 
 class _EmployeeListScreenState extends State<EmployeeListScreen> {
+  late Restaurant _workingRestaurant; // Local copy for editing
+
+  @override
+  void initState() {
+    super.initState();
+    // Create a working copy of the restaurant
+    _workingRestaurant = widget.restaurant.copyWith();
+  }
+
   void _navigateToAddEmployee({Employee? employee}) async {
     final newEmployee = await Navigator.push<Employee>(
       context,
       MaterialPageRoute(
         builder: (_) => AddWorkerPositionScreen(
-          category: widget.restaurant.category,
-          name: widget.restaurant.name,
-          employee: employee, // Pass existing employee for editing
+          category: _workingRestaurant.category,
+          name: _workingRestaurant.name,
+          employee: employee,
         ),
       ),
     );
@@ -33,47 +47,69 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
       setState(() {
         if (employee != null) {
           // Update existing employee
-          final index = widget.restaurant.employees.indexOf(employee);
-          widget.restaurant.employees[index] = newEmployee;
+          final index = _workingRestaurant.employees.indexOf(employee);
+          _workingRestaurant.employees[index] = newEmployee;
         } else {
           // Add new employee
-          widget.restaurant.employees.add(newEmployee);
+          _workingRestaurant.employees.add(newEmployee);
         }
       });
     }
   }
 
-  final List<Color> avatarColors = [
-    Colors.blue.shade100,
-    Colors.green.shade100,
-    Colors.orange.shade100,
-    Colors.purple.shade100,
-    Colors.teal.shade100,
-  ];
+Future<void> _saveOrUpdateRestaurant() async {
+  final box = Hive.box<Restaurant>('restaurants');
+  final existingKeys = box.keys.cast<String>();
+   print("${widget.restaurant.companyId} mmmmmmmmmmmmmm??????????????????????????????");
+  if (widget.isEditing) {
+    if (existingKeys.contains(_workingRestaurant.companyId)) {
+      // ✅ Update existing restaurant
+      await box.put(_workingRestaurant.companyId, _workingRestaurant);
 
-  void _saveToHive() async {
-    final box = Hive.box<Restaurant>('restaurants');
-    await box.add(widget.restaurant);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${_workingRestaurant.name} updated successfully')),
+      );
+    } else {
+      // ⚠️ If companyId not found, fallback or show error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: Restaurant not found for editing.')),
+      );
+      return;
+    }
+  } else {
+    // ✅ Add new restaurant if companyId is not used yet
+    if (existingKeys.contains(_workingRestaurant.companyId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('A restaurant with this ID already exists.')),
+      );
+      return;
+    }
+
+    await box.put(_workingRestaurant.companyId, _workingRestaurant);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${widget.restaurant.name} saved successfully')),
+      SnackBar(content: Text('${_workingRestaurant.name} saved successfully')),
     );
-    Navigator.pushReplacement(context, MaterialPageRoute(
-      builder: (context) => HomeScreen(),
-    ));
   }
+
+  // ✅ Navigate after success
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => HomeScreen()),
+    (route) => false,
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Categories"),
+        title: Text(widget.isEditing ? "Edit Employees" : "Add Employees"),
         centerTitle: true,
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: 30,
-          ),
+          const SizedBox(height: 30),
           SizedBox(
             width: 300,
             height: 50,
@@ -88,60 +124,59 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
               child: const Text(
                 "Add Workers",
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 16),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Expanded(
             child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              separatorBuilder: (context, index) => Divider(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              separatorBuilder: (context, index) => const Divider(
                 thickness: 1,
                 color: Colors.grey,
               ),
-              itemCount: widget.restaurant.employees.length,
+              itemCount: _workingRestaurant.employees.length,
               itemBuilder: (_, index) {
-                final emp = widget.restaurant.employees[index];
+                final emp = _workingRestaurant.employees[index];
                 return Dismissible(
-                  key: Key(emp.name + emp.position), // Unique key for each item
+                  key: Key('${emp.name}_${emp.position}_$index'),
                   background: Container(
                     color: Colors.blue,
                     alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 20),
-                    child: Icon(Icons.edit, color: Colors.white),
+                    padding: const EdgeInsets.only(left: 20),
+                    child: const Icon(Icons.edit, color: Colors.white),
                   ),
                   secondaryBackground: Container(
                     color: Colors.red,
                     alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20),
-                    child: Icon(Icons.delete, color: Colors.white),
+                    padding: const EdgeInsets.only(right: 20),
+                    child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.startToEnd) {
-                      // Swipe right - edit action
                       _navigateToAddEmployee(employee: emp);
-                      return false; // Don't dismiss the item
+                      return false;
                     } else {
-                      // Swipe left - delete action
                       return await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text("Confirm Delete"),
+                          title: const Text("Confirm Delete"),
                           content: Text("Delete ${emp.name}?"),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
-                              child: Text("Cancel"),
+                              child: const Text("Cancel"),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              child: Text("Delete",
-                                  style: TextStyle(color: Colors.red)),
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         ),
@@ -150,9 +185,8 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                   },
                   onDismissed: (direction) {
                     if (direction == DismissDirection.endToStart) {
-                      // Swipe left confirmed - delete employee
                       setState(() {
-                        widget.restaurant.employees.remove(emp);
+                        _workingRestaurant.employees.remove(emp);
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("${emp.name} deleted")),
@@ -170,8 +204,8 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                       );
                     },
                     leading: CircleAvatar(
-                      backgroundColor:
-                          avatarColors[index % avatarColors.length],
+                      backgroundColor: Colors
+                          .primaries[index % Colors.primaries.length].shade100,
                       child: Center(
                         child: Text("${index + 1}"),
                       ),
@@ -196,10 +230,10 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          onPressed: _saveToHive,
-          child: const Text(
-            "Save",
-            style: TextStyle(
+          onPressed: _saveOrUpdateRestaurant,
+          child: Text(
+            widget.isEditing ? "Update" : "Save",
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.white,
               fontSize: 16,
