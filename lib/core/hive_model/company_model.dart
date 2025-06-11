@@ -11,14 +11,18 @@ class Restaurant extends HiveObject {
 
   @HiveField(2)
   final String category;
+  
+  @HiveField(3)
+  final String location;
 
   @HiveField(4)
   final String date;
 
-  @HiveField(3)
+  @HiveField(5)
   final List<Employee> employees;
 
   Restaurant({
+    required this.location,
     required this.date,
     required this.name,
     required this.mobile,

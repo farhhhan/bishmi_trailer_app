@@ -17,27 +17,30 @@ class RestaurantAdapter extends TypeAdapter<Restaurant> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Restaurant(
+      location: fields[3] as String,
       date: fields[4] as String,
       name: fields[0] as String,
       mobile: fields[1] as String,
       category: fields[2] as String,
-      employees: (fields[3] as List).cast<Employee>(),
+      employees: (fields[5] as List).cast<Employee>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Restaurant obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.mobile)
       ..writeByte(2)
       ..write(obj.category)
+      ..writeByte(3)
+      ..write(obj.location)
       ..writeByte(4)
       ..write(obj.date)
-      ..writeByte(3)
+      ..writeByte(5)
       ..write(obj.employees);
   }
 
