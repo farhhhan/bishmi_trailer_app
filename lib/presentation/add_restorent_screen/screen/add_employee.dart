@@ -1,42 +1,18 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:flutter/material.dart';
-
-class UniformItem {
-  final String name;
-  bool isNeeded;
-  bool isReadyMade;
-  String? selectedSize;
-  Map<String, String> measurements;
-
-  UniformItem({
-    required this.name,
-    this.isNeeded = false,
-    this.isReadyMade = true,
-    this.selectedSize,
-    Map<String, String>? measurements,
-  }) : measurements = measurements ?? {};
-}
-
-class WorkerPosition {
-  final String title;
-  List<UniformItem> uniformItems;
-
-  WorkerPosition({
-    required this.title,
-    required this.uniformItems,
-  });
-}
+import 'package:bishmi_app/core/hive_model/company_model.dart';
+import 'package:flutter/material.dart';
 
 class AddWorkerPositionScreen extends StatefulWidget {
   final String category;
   final String name;
-  final Employee? employee; // Add this for editing
+  final Employee? employee;
 
   const AddWorkerPositionScreen({
     Key? key,
     required this.category,
     required this.name,
-    this.employee, // Make it optional
+    this.employee,
   }) : super(key: key);
 
   @override
@@ -46,83 +22,66 @@ class AddWorkerPositionScreen extends StatefulWidget {
 
 class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
   WorkerPosition? selectedPosition;
+  String? _selectedGender;
   TextEditingController _nameController = TextEditingController();
-  final Map<String, List<WorkerPosition>> _positionsByCategory = {
-    'Restaurant': [
-      WorkerPosition(
-        title: 'Executive Chef / Head Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: 'Chef Hat or Cap'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
-      ),
-      WorkerPosition(
-        title: 'Sous Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: 'Skull Cap or Chef Hat'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
-      ),
-      WorkerPosition(
-        title: 'Line Cook / Commis Chef',
-        uniformItems: [
-          UniformItem(name: 'Short-sleeved Chef Jacket'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Skull Cap or Bandana'),
-          UniformItem(name: 'Chef Pants'),
-        ],
-      ),
-      WorkerPosition(
-        title: 'Pastry Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: "Baker's Hat or Cap"),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
-      ),
-      WorkerPosition(
-        title: 'Kitchen Helper / Steward',
-        uniformItems: [
-          UniformItem(name: 'T-shirt or Kitchen Coat'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Cap or Hairnet'),
-        ],
-      ),
-    ],
-    // Add other categories here as needed
-  };
+  TextEditingController _employeeNote = TextEditingController();
+
+  List<UniformItem>? _currentUniformItems;
+  final Map<String, List<WorkerPosition>> _positionsByCategory =
+      PositionData.positionsByCategory;
+
   @override
   void initState() {
     super.initState();
 
-    // Pre-fill data if editing an existing employee
     if (widget.employee != null) {
       _nameController.text = widget.employee!.name;
-
-      // Find the matching position
+      _selectedGender = widget.employee!.gender;
+      _employeeNote.text = widget.employee!.feedBack;
       final positions = _positionsByCategory[widget.category] ?? [];
       selectedPosition = positions.firstWhere(
         (p) => p.title == widget.employee!.position,
         orElse: () => positions.first,
       );
 
-      // Update uniform items based on saved config
-      for (final config in widget.employee!.uniformConfig) {
-        final item = selectedPosition!.uniformItems.firstWhere(
-          (i) => i.name == config.itemName,
-          orElse: () => UniformItem(name: config.itemName),
+      _currentUniformItems = widget.employee!.uniformConfig.map((config) {
+        return UniformItem(
+          name: config.itemName,
+          isNeeded: config.isNeeded,
+          isReadyMade: config.isReadyMade,
+          selectedSize: config.selectedSize,
+          measurements: Map.from(config.measurements),
+          sleeveType: config.sleeveType,
+          tshirtStyle: config.tshirtStyle,
+          materialType: config.materialType,
+          capStyle: config.capStyle,
         );
+      }).toList();
+    }
+  }
 
-        item.isNeeded = config.isNeeded;
-        item.isReadyMade = config.isReadyMade;
-        item.selectedSize = config.selectedSize;
-        item.measurements = config.measurements;
-      }
+  List<UniformItem> _copyUniformItems(List<UniformItem> items) {
+    return items
+        .map((item) => UniformItem(
+              name: item.name,
+              isNeeded: item.isNeeded,
+              isReadyMade: item.isReadyMade,
+              selectedSize: item.selectedSize,
+              measurements: Map.from(item.measurements),
+              sleeveType: item.sleeveType,
+              tshirtStyle: item.tshirtStyle,
+              materialType: item.materialType,
+              capStyle: item.capStyle,
+            ))
+        .toList();
+  }
+
+  void _updateUniformItems() {
+    if (selectedPosition != null && _selectedGender != null) {
+      setState(() {
+        _currentUniformItems = _copyUniformItems(
+            selectedPosition!.getUniformItems(_selectedGender!));
+      });
     }
   }
 
@@ -137,9 +96,7 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
         elevation: 0,
         leading: BackButton(color: Colors.black),
         title: Text(
-          widget.employee != null
-              ? "Edit Worker"
-              : "Add Workers", // Update title
+          widget.employee != null ? "Edit Worker" : "Add Workers",
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -160,29 +117,87 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
             controller: _nameController,
           ),
           const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "Gender",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('Male'),
+                  value: 'Male',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                      _updateUniformItems();
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('Female'),
+                  value: 'Female',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                      _updateUniformItems();
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           PositionDropdown(
             positions: positions,
             selectedPosition: selectedPosition,
             onChanged: (position) {
               setState(() {
                 selectedPosition = position;
+                if (_selectedGender != null) {
+                  _updateUniformItems();
+                }
               });
             },
           ),
-          if (selectedPosition != null) ...[
+          if (selectedPosition != null &&
+              _selectedGender != null &&
+              _currentUniformItems != null) ...[
             const SizedBox(height: 24),
             const Text(
               'Uniform Items:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...selectedPosition!.uniformItems.map((item) {
+            ..._currentUniformItems!.map((item) {
               return UniformItemCard(
                 item: item,
                 onChanged: () => setState(() {}),
               );
             }).toList(),
             const SizedBox(height: 24),
+            const Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Text(
+                "Employee Note",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            CustomTextField(
+              label: "Enter Employee Note",
+              controller: _employeeNote,
+              maxLine: 3,
+            ),
+            SizedBox(
+              height: 20,
+            ),
             SaveButton(onPressed: _saveEmployeeData),
           ],
         ],
@@ -191,10 +206,18 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
   }
 
   void _saveEmployeeData() {
+    if (_selectedGender == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select gender')),
+      );
+      return;
+    }
+
     final employee = Employee(
+      feedBack: _employeeNote.text,
       name: _nameController.text,
       position: selectedPosition!.title,
-      uniformConfig: selectedPosition!.uniformItems
+      uniformConfig: _currentUniformItems!
           .where((item) => item.isNeeded)
           .map((item) => UniformItemConfig(
                 itemName: item.name,
@@ -202,8 +225,13 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
                 isReadyMade: item.isReadyMade,
                 selectedSize: item.selectedSize,
                 measurements: item.measurements,
+                sleeveType: item.sleeveType,
+                tshirtStyle: item.tshirtStyle,
+                materialType: item.materialType,
+                capStyle: item.capStyle,
               ))
           .toList(),
+      gender: _selectedGender!,
     );
     Navigator.pop(context, employee);
   }
@@ -214,9 +242,10 @@ class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final TextInputType inputType;
-
-  const CustomTextField({
+  int maxLine;
+  CustomTextField({
     Key? key,
+    this.maxLine = 1,
     required this.label,
     required this.controller,
     this.inputType = TextInputType.text,
@@ -227,6 +256,7 @@ class CustomTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: inputType,
+      maxLines: maxLine,
       decoration: InputDecoration(
         hintText: label,
         hintStyle: const TextStyle(
@@ -300,6 +330,12 @@ class UniformItemCard extends StatefulWidget {
 class _UniformItemCardState extends State<UniformItemCard> {
   @override
   Widget build(BuildContext context) {
+    final isCap = widget.item.name.toLowerCase().contains('cap') ||
+        widget.item.name.toLowerCase().contains('hat') ||
+        widget.item.name.toLowerCase().contains('net');
+
+    final isApron = widget.item.name.toLowerCase().contains('apron');
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -332,63 +368,460 @@ class _UniformItemCardState extends State<UniformItemCard> {
             ),
             if (widget.item.isNeeded) ...[
               const SizedBox(height: 5),
-              Row(
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      title: const Text(
-                        'Ready Made',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      leading: SizedBox(
-                        width: 10,
-                        child: Radio<bool>(
-                          value: true,
-                          groupValue: widget.item.isReadyMade,
-                          onChanged: (value) {
-                            setState(() {
-                              widget.item.isReadyMade = value!;
-                            });
-                            widget.onChanged();
-                          },
+
+              // Special handling for Apron and Cap
+              if (isApron) _buildApronOptions(),
+              if (isCap) _buildCapOptions(),
+
+              // Material selection for all items except caps (caps have fixed material)
+              if (!isCap && !isApron) MaterialDropdown(item: widget.item),
+              if (isApron) MaterialDropdown(item: widget.item),
+              const SizedBox(height: 10),
+
+              // Ready-made vs Fabric selection (not for caps)
+              if (!isCap && !isApron) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        title: const Text(
+                          'Ready-Made',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        leading: SizedBox(
+                          width: 10,
+                          child: Radio<bool>(
+                            value: true,
+                            groupValue: widget.item.isReadyMade,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.item.isReadyMade = value!;
+                              });
+                              widget.onChanged();
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListTile(
-                      title: const Text(
-                        'measurement',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      leading: SizedBox(
-                        width: 9,
-                        child: Radio<bool>(
-                          value: false,
-                          groupValue: widget.item.isReadyMade,
-                          onChanged: (value) {
-                            setState(() {
-                              widget.item.isReadyMade = value!;
-                            });
-                            widget.onChanged();
-                          },
+                    Expanded(
+                      child: ListTile(
+                        title: const Text(
+                          'Fabric Only',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        leading: SizedBox(
+                          width: 9,
+                          child: Radio<bool>(
+                            value: false,
+                            groupValue: widget.item.isReadyMade,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.item.isReadyMade = value!;
+                              });
+                              widget.onChanged();
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
+              ],
+
+              // Additional features based on item type
+              if (!isCap && !isApron) ...[
+                if (widget.item.name.toLowerCase().contains('shirt') ||
+                    widget.item.name.toLowerCase().contains('coat') ||
+                    widget.item.name.toLowerCase().contains('jacket')) ...[
+                  SleeveTypeRadio(item: widget.item),
+                  const SizedBox(height: 10),
                 ],
-              ),
-              if (widget.item.isReadyMade) ...[
-                const SizedBox(height: 10),
+                if (widget.item.name.toLowerCase().contains('t-shirt') ||
+                    widget.item.name.toLowerCase().contains('tshirt')) ...[
+                  TshirtStyleRadio(item: widget.item),
+                  const SizedBox(height: 10),
+                ],
+              ],
+
+              // Size selection (for ready-made items)
+              if (widget.item.isReadyMade && !isCap && !isApron) ...[
                 SizeDropdown(item: widget.item),
-              ] else ...[
-                const SizedBox(height: 10),
+              ] else if (!isCap && !isApron) ...[
                 MeasurementsFields(item: widget.item),
               ],
             ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildApronOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 18.0),
+          child: const Text(
+            'Apron Type:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Full Apron',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: Radio<String>(
+                  value: 'Full',
+                  groupValue: widget.item.capStyle ??
+                      'Full', // Reusing capStyle field for apron type
+                  onChanged: (value) {
+                    setState(() {
+                      widget.item.capStyle = value;
+                    });
+                    widget.onChanged();
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Half Apron',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: Radio<String>(
+                  value: 'Half',
+                  groupValue: widget.item.capStyle ?? 'Full',
+                  onChanged: (value) {
+                    setState(() {
+                      widget.item.capStyle = value;
+                    });
+                    widget.onChanged();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildCapOptions() {
+    // For caps, we'll set fixed material and style options
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 18.0),
+          child: const Text(
+            'Cap Type:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Net Cap',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: Radio<String>(
+                  value: 'Net',
+                  groupValue: widget.item.capStyle ?? 'Net',
+                  onChanged: (value) {
+                    setState(() {
+                      widget.item.capStyle = value;
+                      widget.item.materialType =
+                          'Cotton'; // Fixed material for caps
+                    });
+                    widget.onChanged();
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Cotton Cap',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: Radio<String>(
+                  value: 'Cotton',
+                  groupValue: widget.item.capStyle ?? 'Net',
+                  onChanged: (value) {
+                    setState(() {
+                      widget.item.capStyle = value;
+                      widget.item.materialType =
+                          'Cotton'; // Fixed material for caps
+                    });
+                    widget.onChanged();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
+// Material Dropdown Widget
+class MaterialDropdown extends StatelessWidget {
+  final UniformItem item;
+
+  const MaterialDropdown({Key? key, required this.item}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final materials = [
+      'Cotton',
+      'Polyester',
+      'Nylon',
+      'Wool',
+      'Linen',
+      'Denim',
+      'Silk',
+      'Leather',
+      'Blend'
+    ];
+
+    return DropdownButtonFormField<String>(
+      value: item.materialType,
+      decoration: InputDecoration(
+        labelText: "Select Material",
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      items: materials
+          .map((material) => DropdownMenuItem(
+                value: material,
+                child: Text(material),
+              ))
+          .toList(),
+      onChanged: (material) {
+        item.materialType = material;
+      },
+    );
+  }
+}
+
+// Sleeve Type Radio Widget
+class SleeveTypeRadio extends StatefulWidget {
+  final UniformItem item;
+
+  const SleeveTypeRadio({Key? key, required this.item}) : super(key: key);
+
+  @override
+  State<SleeveTypeRadio> createState() => _SleeveTypeRadioState();
+}
+
+class _SleeveTypeRadioState extends State<SleeveTypeRadio> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Sleeve Type:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Half Sleeve',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Half Sleeve',
+                    groupValue: widget.item.sleeveType,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.sleeveType = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Full Sleeve',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Full Sleeve',
+                    groupValue: widget.item.sleeveType,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.sleeveType = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// T-Shirt Style Radio Widget
+class TshirtStyleRadio extends StatefulWidget {
+  final UniformItem item;
+
+  const TshirtStyleRadio({Key? key, required this.item}) : super(key: key);
+
+  @override
+  State<TshirtStyleRadio> createState() => _TshirtStyleRadioState();
+}
+
+class _TshirtStyleRadioState extends State<TshirtStyleRadio> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'T-Shirt Style:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Polo',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Polo',
+                    groupValue: widget.item.tshirtStyle,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.tshirtStyle = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Regular',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Regular',
+                    groupValue: widget.item.tshirtStyle,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.tshirtStyle = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// Cap Style Radio Widget
+class CapStyleRadio extends StatefulWidget {
+  final UniformItem item;
+
+  const CapStyleRadio({Key? key, required this.item}) : super(key: key);
+
+  @override
+  State<CapStyleRadio> createState() => _CapStyleRadioState();
+}
+
+class _CapStyleRadioState extends State<CapStyleRadio> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Style:',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Cotton Cap',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Cotton Cap',
+                    groupValue: widget.item.capStyle,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.capStyle = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                title: const Text(
+                  'Net Cap',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                leading: SizedBox(
+                  width: 15,
+                  child: Radio<String>(
+                    value: 'Net Cap',
+                    groupValue: widget.item.capStyle,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.item.capStyle = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -414,7 +847,8 @@ class _SizeDropdownState extends State<SizeDropdown> {
     if (widget.item.name.toLowerCase().contains('shoe')) {
       sizes = ['6', '7', '8', '9', '10', '11', '12'];
     } else if (widget.item.name.toLowerCase().contains('hat') ||
-        widget.item.name.toLowerCase().contains('cap')) {
+        widget.item.name.toLowerCase().contains('cap') ||
+        widget.item.name.toLowerCase().contains('net')) {
       sizes = ['Small', 'Medium', 'Large'];
     }
   }
@@ -494,7 +928,8 @@ class _MeasurementsFieldsState extends State<MeasurementsFields> {
         'Foot Width': 'cm',
       };
     } else if (widget.item.name.toLowerCase().contains('hat') ||
-        widget.item.name.toLowerCase().contains('cap')) {
+        widget.item.name.toLowerCase().contains('cap') ||
+        widget.item.name.toLowerCase().contains('net')) {
       measurementFields = {
         'Head Circumference': 'inches',
       };
