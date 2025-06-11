@@ -11,11 +11,19 @@ class Restaurant extends HiveObject {
 
   @HiveField(2)
   final String category;
-
+  
   @HiveField(3)
+  final String location;
+
+  @HiveField(4)
+  final String date;
+
+  @HiveField(5)
   final List<Employee> employees;
 
   Restaurant({
+    required this.location,
+    required this.date,
     required this.name,
     required this.mobile,
     required this.category,
@@ -34,10 +42,18 @@ class Employee {
   @HiveField(2)
   final List<UniformItemConfig> uniformConfig;
 
+  @HiveField(3)
+  final String gender; // 'Male' or 'Female'
+
+  @HiveField(4)
+  final String feedBack; // 'Male' or 'Female'
+
   Employee({
+    required this.feedBack,
     required this.name,
     required this.position,
     required this.uniformConfig,
+    required this.gender,
   });
 }
 
@@ -58,18 +74,17 @@ class UniformItemConfig {
   @HiveField(4)
   final Map<String, String> measurements;
 
-  // New fields for additional options
   @HiveField(5)
-  final String? sleeveType;      // 'Half Sleeve' or 'Full Sleeve'
+  final String? sleeveType; // 'Half Sleeve' or 'Full Sleeve'
 
   @HiveField(6)
-  final String? tshirtStyle;     // 'Polo' or 'Regular'
+  final String? tshirtStyle; // 'Polo' or 'Regular'
 
   @HiveField(7)
-  final String? materialType;    // Material type for all items
+  final String? materialType; // Material type for all items
 
   @HiveField(8)
-  final String? capStyle;        // 'Cap' or 'Net'
+  final String? capStyle; // 'Cap' or 'Net'
 
   UniformItemConfig({
     required this.itemName,
@@ -84,146 +99,236 @@ class UniformItemConfig {
   });
 }
 
-// Category-based position definitions
 class PositionData {
   static final Map<String, List<WorkerPosition>> positionsByCategory = {
     'Restaurant': [
       WorkerPosition(
         title: 'Executive Chef / Head Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: 'Chef Hat or Cap'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: 'Chef Hat or Cap'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Pants'),
+          ],
+          'Female': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: 'Chef Hat or Cap'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Skirt/Pants'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Sous Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: 'Skull Cap or Chef Hat'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: 'Skull Cap or Chef Hat'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Pants'),
+          ],
+          'Female': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: 'Skull Cap or Chef Hat'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Skirt/Pants'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Line Cook / Commis Chef',
-        uniformItems: [
-          UniformItem(name: 'Short-sleeved Chef Jacket'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Skull Cap or Bandana'),
-          UniformItem(name: 'Chef Pants'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Short-sleeved Chef Jacket'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Skull Cap or Bandana'),
+            UniformItem(name: 'Chef Pants'),
+          ],
+          'Female': [
+            UniformItem(name: 'Short-sleeved Chef Jacket'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Skull Cap or Bandana'),
+            UniformItem(name: 'Chef Skirt/Pants'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Pastry Chef',
-        uniformItems: [
-          UniformItem(name: 'Chef Coat'),
-          UniformItem(name: "Baker's Hat or Cap"),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Chef Pants'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: "Baker's Hat or Cap"),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Pants'),
+          ],
+          'Female': [
+            UniformItem(name: 'Chef Coat'),
+            UniformItem(name: "Baker's Hat or Cap"),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Chef Skirt/Pants'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Kitchen Helper / Steward',
-        uniformItems: [
-          UniformItem(name: 'T-shirt or Kitchen Coat'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Cap or Hairnet'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'T-shirt or Kitchen Coat'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Cap or Hairnet'),
+          ],
+          'Female': [
+            UniformItem(name: 'T-shirt or Kitchen Coat'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Cap or Hairnet'),
+          ],
+        },
       ),
     ],
     'Hotel': [
       WorkerPosition(
         title: 'Receptionist',
-        uniformItems: [
-          UniformItem(name: 'Formal Shirt'),
-          UniformItem(name: 'Blazer'),
-          UniformItem(name: 'Formal Pants'),
-          UniformItem(name: 'Name Tag'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Formal Shirt'),
+            UniformItem(name: 'Blazer'),
+            UniformItem(name: 'Formal Pants'),
+            UniformItem(name: 'Name Tag'),
+          ],
+          'Female': [
+            UniformItem(name: 'Formal Blouse'),
+            UniformItem(name: 'Blazer'),
+            UniformItem(name: 'Formal Skirt/Pants'),
+            UniformItem(name: 'Name Tag'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Housekeeping',
-        uniformItems: [
-          UniformItem(name: 'Maid Uniform'),
-          UniformItem(name: 'Apron'),
-          UniformItem(name: 'Gloves'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Maid Uniform'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Gloves'),
+          ],
+          'Female': [
+            UniformItem(name: 'Maid Uniform'),
+            UniformItem(name: 'Apron'),
+            UniformItem(name: 'Gloves'),
+          ],
+        },
       ),
-      // Add more hotel positions as needed
     ],
     'Hospital': [
       WorkerPosition(
         title: 'Doctor',
-        uniformItems: [
-          UniformItem(name: 'Lab Coat'),
-          UniformItem(name: 'Scrubs'),
-          UniformItem(name: 'Stethoscope'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Lab Coat'),
+            UniformItem(name: 'Scrubs'),
+            UniformItem(name: 'Stethoscope'),
+          ],
+          'Female': [
+            UniformItem(name: 'Lab Coat'),
+            UniformItem(name: 'Scrubs'),
+            UniformItem(name: 'Stethoscope'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Nurse',
-        uniformItems: [
-          UniformItem(name: 'Nursing Uniform'),
-          UniformItem(name: 'Nursing Cap'),
-          UniformItem(name: 'Watch'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Nursing Uniform'),
+            UniformItem(name: 'Nursing Cap'),
+            UniformItem(name: 'Watch'),
+          ],
+          'Female': [
+            UniformItem(name: 'Nursing Uniform'),
+            UniformItem(name: 'Nursing Cap'),
+            UniformItem(name: 'Watch'),
+          ],
+        },
       ),
-      // Add more hospital positions as needed
     ],
     'School': [
       WorkerPosition(
         title: 'Teacher',
-        uniformItems: [
-          UniformItem(name: 'Formal Shirt'),
-          UniformItem(name: 'Formal Pants/Skirt'),
-          UniformItem(name: 'Blazer (Optional)'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Formal Shirt'),
+            UniformItem(name: 'Formal Pants'),
+            UniformItem(name: 'Blazer (Optional)'),
+          ],
+          'Female': [
+            UniformItem(name: 'Formal Blouse'),
+            UniformItem(name: 'Formal Skirt/Pants'),
+            UniformItem(name: 'Blazer (Optional)'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'Administrative Staff',
-        uniformItems: [
-          UniformItem(name: 'Formal Shirt'),
-          UniformItem(name: 'Formal Pants'),
-          UniformItem(name: 'Name Tag'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Formal Shirt'),
+            UniformItem(name: 'Formal Pants'),
+            UniformItem(name: 'Name Tag'),
+          ],
+          'Female': [
+            UniformItem(name: 'Formal Blouse'),
+            UniformItem(name: 'Formal Skirt/Pants'),
+            UniformItem(name: 'Name Tag'),
+          ],
+        },
       ),
-      // Add more school positions as needed
     ],
     'Office': [
       WorkerPosition(
         title: 'Manager',
-        uniformItems: [
-          UniformItem(name: 'Formal Shirt'),
-          UniformItem(name: 'Suit Jacket'),
-          UniformItem(name: 'Formal Pants'),
-          UniformItem(name: 'Tie'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Formal Shirt'),
+            UniformItem(name: 'Suit Jacket'),
+            UniformItem(name: 'Formal Pants'),
+            UniformItem(name: 'Tie'),
+          ],
+          'Female': [
+            UniformItem(name: 'Formal Blouse'),
+            UniformItem(name: 'Suit Jacket'),
+            UniformItem(name: 'Formal Skirt/Pants'),
+            UniformItem(name: 'Scarf/Neckpiece'),
+          ],
+        },
       ),
       WorkerPosition(
         title: 'IT Staff',
-        uniformItems: [
-          UniformItem(name: 'Company Polo Shirt'),
-          UniformItem(name: 'Casual Pants'),
-        ],
+        items: {
+          'Male': [
+            UniformItem(name: 'Company Polo Shirt'),
+            UniformItem(name: 'Casual Pants'),
+          ],
+          'Female': [
+            UniformItem(name: 'Company Polo Shirt'),
+            UniformItem(name: 'Casual Skirt/Pants'),
+          ],
+        },
       ),
-      // Add more office positions as needed
     ],
   };
 }
 
-// UI Models (non-Hive, for UI state management)
 class UniformItem {
   final String name;
   bool isNeeded;
   bool isReadyMade;
   String? selectedSize;
   Map<String, String> measurements;
-  String? sleeveType;      // 'Half Sleeve' or 'Full Sleeve'
-  String? tshirtStyle;     // 'Polo' or 'Regular'
-  String? materialType;    // Material type for all items
-  String? capStyle;        // 'Cap' or 'Net'
+  String? sleeveType;
+  String? tshirtStyle;
+  String? materialType;
+  String? capStyle;
 
   UniformItem({
     required this.name,
@@ -240,10 +345,14 @@ class UniformItem {
 
 class WorkerPosition {
   final String title;
-  List<UniformItem> uniformItems;
+  final Map<String, List<UniformItem>> uniformItemsByGender;
 
   WorkerPosition({
     required this.title,
-    required this.uniformItems,
-  });
+    required Map<String, List<UniformItem>> items,
+  }) : uniformItemsByGender = items;
+
+  List<UniformItem> getUniformItems(String gender) {
+    return uniformItemsByGender[gender] ?? uniformItemsByGender['Male']!;
+  }
 }

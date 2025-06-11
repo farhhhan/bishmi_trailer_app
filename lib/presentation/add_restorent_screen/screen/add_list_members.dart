@@ -57,6 +57,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
       SnackBar(content: Text('${widget.restaurant.name} saved successfully')),
     );
     Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   @override

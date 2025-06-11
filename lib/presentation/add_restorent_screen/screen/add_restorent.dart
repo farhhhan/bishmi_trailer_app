@@ -151,6 +151,8 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               final restaurant = Restaurant(
+                location: _addressController.text,
+                date: _dateController.text,
                 name: _restaurantController.text,
                 mobile: _mobileController.text,
                 category: selectedCategory!,
