@@ -49,6 +49,7 @@ dependencies:
   google_fonts: ^6.2.1
   widget_loading: ^0.4.0
   loading_animation_widget: ^1.3.0
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:

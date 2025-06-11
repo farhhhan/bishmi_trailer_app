@@ -1,5 +1,6 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_employee.dart';
+import 'package:bishmi_app/presentation/home_screen/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
@@ -56,7 +57,9 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.restaurant.name} saved successfully')),
     );
-    Navigator.pop(context);
+    Navigator.pushReplacement(context, MaterialPageRoute(
+      builder: (context) => HomeScreen(),
+    ));
   }
 
   @override
