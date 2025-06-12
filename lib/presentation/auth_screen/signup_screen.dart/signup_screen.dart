@@ -5,8 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class SignupScreen1 extends StatefulWidget {
   const SignupScreen1({super.key});
@@ -24,14 +24,25 @@ class _SignupScreenState extends State<SignupScreen1> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
+  bool _areFieldsFilled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_checkFields);
+    _passwordController.addListener(_checkFields);
+    _employeeIdController.addListener(_checkFields);
+    _phoneController.addListener(_checkFields);
+    _usernameController.addListener(_checkFields);
+  }
 
   @override
   void dispose() {
-    _employeeIdController.dispose();
-    _phoneController.dispose();
-    _usernameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
+    _employeeIdController.removeListener(_checkFields);
+    _phoneController.removeListener(_checkFields);
+    _usernameController.removeListener(_checkFields);
+    _emailController.removeListener(_checkFields);
+    _passwordController.removeListener(_checkFields);
     super.dispose();
   }
 
@@ -41,7 +52,8 @@ class _SignupScreenState extends State<SignupScreen1> {
     }
     setState(() => _isLoading = true);
     try {
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -53,7 +65,6 @@ class _SignupScreenState extends State<SignupScreen1> {
           phoneNumber: _phoneController.text.trim(),
           username: _usernameController.text.trim(),
           email: _emailController.text.trim(),
-          
         );
 
         try {
@@ -63,28 +74,32 @@ class _SignupScreenState extends State<SignupScreen1> {
               .doc(newUser.uid)
               .set(newUser.toJson());
           print('Firestore write successful for user: ${newUser.uid}');
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Account created successfully. Please login.')),
+              const SnackBar(
+                  content: Text('Account created successfully. Please login.')),
             );
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const LoginScreen()), 
+              MaterialPageRoute(builder: (_) => const LoginScreen()),
             );
           }
         } on FirebaseException catch (e) {
-            print('Firestore error during write: ${e.toString()}');
-            if (mounted) {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Firestore error: ${e.message ?? e.code}')),
-                );
-            }
+          print('Firestore error during write: ${e.toString()}');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Firestore error: ${e.message ?? e.code}')),
+            );
+          }
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User creation failed (user null). Please try again.')),
+            const SnackBar(
+                content: Text(
+                    'User creation failed (user null). Please try again.')),
           );
         }
       }
@@ -107,13 +122,26 @@ class _SignupScreenState extends State<SignupScreen1> {
     } catch (e) {
       print('Unexpected error: ${e.toString()}');
       if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('An unexpected error occurred: ${e.toString()}')),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _checkFields() {
+    setState(() {
+      _areFieldsFilled = _employeeIdController.text.isNotEmpty &&
+          _phoneController.text.isNotEmpty &&
+          _usernameController.text.isNotEmpty &&
+          _emailController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty;
+    });
+
+    // _formKey.currentState?.validate(); // Live update validation UI
   }
 
   @override
@@ -184,7 +212,30 @@ class _SignupScreenState extends State<SignupScreen1> {
                         hintText: 'Enter your employee ID',
                         prefixIcon: const Icon(Icons.badge),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide(
+                            color: const Color.fromARGB(255, 36, 107, 126),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 26, 182, 187),
+                              width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.5),
                         ),
                       ),
                       validator: (value) {
@@ -198,13 +249,37 @@ class _SignupScreenState extends State<SignupScreen1> {
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
+                      cursorColor: const Color.fromARGB(255, 26, 182, 187),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         labelText: 'Phone Number',
                         hintText: 'Enter your phone number',
                         prefixIcon: const Icon(Icons.phone),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide(
+                            color: const Color.fromARGB(255, 36, 107, 126),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 26, 182, 187),
+                              width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.5),
                         ),
                       ),
                       validator: (value) {
@@ -220,12 +295,36 @@ class _SignupScreenState extends State<SignupScreen1> {
                     const SizedBox(height: 15),
                     TextFormField(
                       controller: _usernameController,
+                      cursorColor: const Color.fromARGB(255, 26, 182, 187),
                       decoration: InputDecoration(
                         labelText: 'Username',
                         hintText: 'Enter your username',
                         prefixIcon: const Icon(Icons.person),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide(
+                            color: const Color.fromARGB(255, 36, 107, 126),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 26, 182, 187),
+                              width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.5),
                         ),
                       ),
                       validator: (value) {
@@ -238,13 +337,41 @@ class _SignupScreenState extends State<SignupScreen1> {
                     const SizedBox(height: 15),
                     TextFormField(
                       controller: _emailController,
+                      cursorColor: const Color.fromARGB(255, 26, 182, 187),
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 18.0, horizontal: 15.0),
                         labelText: 'Email',
                         hintText: 'Enter your email',
                         prefixIcon: const Icon(Icons.email),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide(
+                            color: const Color.fromARGB(255, 36, 107, 126),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 26, 182, 187),
+                              width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.5),
                         ),
                       ),
                       validator: (value) {
@@ -261,20 +388,46 @@ class _SignupScreenState extends State<SignupScreen1> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscureText,
+                      cursorColor: const Color.fromARGB(255, 26, 182, 187),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'Enter your password',
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureText ? Icons.visibility_off : Icons.visibility,
+                            _obscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                           onPressed: () {
                             setState(() => _obscureText = !_obscureText);
                           },
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: BorderSide(
+                            color: const Color.fromARGB(255, 36, 107, 126),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 26, 182, 187),
+                              width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.0),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(9),
+                          borderSide:
+                              const BorderSide(color: Colors.red, width: 1.5),
                         ),
                       ),
                       validator: (value) {
@@ -289,47 +442,56 @@ class _SignupScreenState extends State<SignupScreen1> {
                     ),
                     const SizedBox(height: 30),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _signup,
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color.fromARGB(255, 4, 16, 82),
-                            ),
-                            shape: MaterialStateProperty.all<OutlinedBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: ElevatedButton(
+                        onPressed:
+                            _areFieldsFilled && !_isLoading ? _signup : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _areFieldsFilled
+                              ? Colors.orangeAccent
+                              : const Color.fromARGB(255, 171, 139, 97)
+                                  .withOpacity(0.5),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
                           ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                          minimumSize: const Size(double.infinity, 50),
+                          elevation: _areFieldsFilled ? 2 : 0,
                         ),
+                        child: _isLoading
+                            ? SizedBox(
+                                width: 50,
+                                height: 24,
+                                child: LoadingAnimationWidget
+                                    .horizontalRotatingDots(
+                                  color: Colors.orange,
+                                  size: 40,
+                                ))
+                            : Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: _areFieldsFilled
+                                      ? Colors.white
+                                      : Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const LoginScreen()),
                         );
                       },
                       child: const Text(
                         'Already have an account? Login',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 33, 146, 161),
+                          color: Color.fromARGB(255, 8, 8, 8),
                         ),
                       ),
                     ),
@@ -445,4 +607,4 @@ class _EllipsePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 
+}
