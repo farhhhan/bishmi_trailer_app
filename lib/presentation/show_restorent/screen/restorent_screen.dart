@@ -1,6 +1,7 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_list_members.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_restorent.dart';
+import 'package:bishmi_app/presentation/add_restorent_screen/screen/employee_detials.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -630,69 +631,82 @@ class _RestaurantDetailsBottomSheetState
                     itemCount: filteredEmployees.length,
                     itemBuilder: (context, index) {
                       final employee = filteredEmployees[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade200,
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: CircleAvatar(
-                            radius: 24,
-                            backgroundColor: _getAvatarColor(employee.gender),
-                            child: Text(
-                              employee.name.isNotEmpty
-                                  ? employee.name[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EmployeeDetailsScreen(
+                               
+                                employee: employee,
                               ),
                             ),
-                          ),
-                          title: Text(
-                            employee.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                employee.position,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  _buildTag(employee.gender,
-                                      _getGenderColor(employee.gender)),
-                                  const SizedBox(width: 8),
-                                  _buildTag(
-                                      employee.position, Colors.blue.shade100),
-                                ],
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade200,
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.grey,
-                            size: 16,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: CircleAvatar(
+                              radius: 24,
+                              backgroundColor: _getAvatarColor(employee.gender),
+                              child: Text(
+                                employee.name.isNotEmpty
+                                    ? employee.name[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              employee.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  employee.position,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    _buildTag(employee.gender,
+                                        _getGenderColor(employee.gender)),
+                                    const SizedBox(width: 8),
+                                    _buildTag(
+                                        employee.position, Colors.blue.shade100),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.grey,
+                              size: 16,
+                            ),
                           ),
                         ),
                       );

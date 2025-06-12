@@ -41,3 +41,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+lib/presentation/home_screen/screen/home_screen.dart
+/lib/presentation/home_screen/screen
+lib/presentation/home_screen/screen/home_screen.dart
