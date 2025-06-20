@@ -1,11 +1,12 @@
 import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
 import 'package:bishmi_app/presentation/home_screen/screen/home_screen.dart';
+import 'package:bishmi_app/presentation/auth_screen/login_screen/admin_home_screen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constant/images/constant_images.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -24,10 +25,17 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      final user = FirebaseAuth.instance.currentUser;
+    Future.delayed(const Duration(seconds: 3), () async {
+      final prefs = await SharedPreferences.getInstance();
+      final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      final isAdminLoggedIn = prefs.getBool('isAdminLoggedIn') ?? false;
       if (mounted) {
-        if (user != null) {
+        if (isAdminLoggedIn) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => AdminHomeScreen()),
+          );
+        } else if (isLoggedIn) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => HomeScreen()),

@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+import 'package:bishmi_app/core/firebase_model/collection_auth.dart';
 
 class SignupScreen1 extends StatefulWidget {
   const SignupScreen1({super.key});
@@ -52,79 +55,53 @@ class _SignupScreenState extends State<SignupScreen1> {
     }
     setState(() => _isLoading = true);
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final employeeId = _employeeIdController.text.trim();
+      final phoneNumber = _phoneController.text.trim();
+      final username = _usernameController.text.trim();
 
-      if (userCredential.user != null) {
-        final newUser = UserModel(
-          uid: userCredential.user!.uid,
-          employeeId: _employeeIdController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-          username: _usernameController.text.trim(),
-          email: _emailController.text.trim(),
-        );
+      // Hash the password
+      final bytes = utf8.encode(password);
+      final hashedPassword = sha256.convert(bytes).toString();
 
-        try {
-          print('Attempting to write to Firestore for user: ${newUser.uid}');
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(newUser.uid)
-              .set(newUser.toJson());
-          print('Firestore write successful for user: ${newUser.uid}');
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Account created successfully. Please login.')),
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
-          }
-        } on FirebaseException catch (e) {
-          print('Firestore error during write: ${e.toString()}');
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text('Firestore error: ${e.message ?? e.code}')),
-            );
-          }
-        }
-      } else {
+      // Check if user already exists
+      final exists = await CollectionAuth.userExists(email);
+      if (exists) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text(
-                    'User creation failed (user null). Please try again.')),
+            const SnackBar(content: Text('An account already exists for that email.')),
           );
         }
+        setState(() => _isLoading = false);
+        return;
       }
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = 'Signup failed (Auth)';
-      if (e.code == 'weak-password') {
-        errorMessage = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = 'An account already exists for that email.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'The email address is badly formatted.';
-      } else if (e.code == 'network-request-failed') {
-        errorMessage = 'Network error. Please check your connection.';
-      }
+
+      // Create new user document
+      final newUser = {
+        'employeeId': employeeId,
+        'phoneNumber': phoneNumber,
+        'username': username,
+        'email': email,
+        'password': hashedPassword,
+      };
+
+      await CollectionAuth.registerUser(newUser);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
+          const SnackBar(content: Text('Account created successfully. Please login.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       }
     } catch (e) {
-      print('Unexpected error: ${e.toString()}');
+      print('Unexpected error: [31m${e.toString()}[0m');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('An unexpected error occurred: ${e.toString()}')),
+          SnackBar(content: Text('An unexpected error occurred: [31m${e.toString()}[0m')),
         );
       }
     } finally {

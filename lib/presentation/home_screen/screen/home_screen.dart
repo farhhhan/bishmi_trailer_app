@@ -110,38 +110,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Logout'),
-                        content: const Text('Are you sure you want to logout?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.pop(context), // Dismiss dialog
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              Navigator.pop(context); // Close the dialog
-                              await FirebaseAuth.instance.signOut();
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              await prefs.setBool('isLoggedIn', false);
-                              if (mounted) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const LoginScreen()),
-                                  (route) => false,
-                                );
-                              }
-                            },
-                            child: const Text('Logout'),
-                          ),
-                        ],
+                     showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
                       ),
-                    );
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool('isLoggedIn', false);
+                          if (mounted) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              (route) => false,
+                            );
+                          }
+                        },
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                );
+                      
                   },
                 )
               ],
@@ -334,7 +331,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ],
               ),
-            )
+            ),
+            const SizedBox(height: 20),
+            
           ],
         ),
       ),

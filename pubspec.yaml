@@ -50,6 +50,7 @@ dependencies:
   widget_loading: ^0.4.0
   loading_animation_widget: ^1.3.0
   font_awesome_flutter: ^10.8.0
+  crypto: ^3.0.3
   
 
 dev_dependencies:

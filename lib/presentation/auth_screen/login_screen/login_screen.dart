@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 import '../../../constant/images/constant_images.dart';
 import '../../home_screen/screen/home_screen.dart';
+import 'package:bishmi_app/core/firebase_model/collection_auth.dart';
+import 'package:bishmi_app/presentation/auth_screen/login_screen/admin_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -50,36 +55,41 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate() && _areFieldsFilled) {
       setState(() => _isLoading = true);
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
         final prefs = await SharedPreferences.getInstance();
+        final adminEmail = prefs.getString('adminEmail') ?? 'admin@bishmi.com';
+        final adminPassword = prefs.getString('adminPassword') ?? sha256.convert(utf8.encode('admin123')).toString();
+        final inputPasswordHash = sha256.convert(utf8.encode(password)).toString();
+        // Admin login logic
+        if (email == adminEmail && inputPasswordHash == adminPassword) {
+          await prefs.setBool('isAdminLoggedIn', true);
+          await prefs.setBool('isLoggedIn', false);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => AdminHomeScreen()),
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
+        // User login logic
+        final success = await CollectionAuth.loginWithEmailPassword(email, password);
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid email or password.')),
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
         await prefs.setBool('isLoggedIn', true);
-
+        await prefs.setBool('isAdminLoggedIn', false);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
-      } on FirebaseAuthException catch (e) {
-        String errorMessage = 'Login failed';
-        if (e.code == 'user-not-found') {
-          errorMessage = 'No user found for that email.';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Wrong password provided.';
-        } else if (e.code == 'invalid-email') {
-          errorMessage = 'The email address is badly formatted.';
-        } else if (e.code == 'network-request-failed') {
-          errorMessage = 'Network error. Please check your connection.';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('An unexpected error occurred: ${e.toString()}')),
+          SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
         );
       } finally {
         if (mounted) setState(() => _isLoading = false);
