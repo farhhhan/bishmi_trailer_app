@@ -1,14 +1,15 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
-import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_list_members.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_restorent.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/employee_detials.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:bishmi_app/core/pdf/pdf_generator.dart';
+import 'package:printing/printing.dart';
 
 class RestaurantListScreen extends StatefulWidget {
+  // ignore: use_super_parameters
   const RestaurantListScreen({Key? key}) : super(key: key);
 
   @override
@@ -712,6 +713,28 @@ class _RestaurantDetailsBottomSheetState
                       );
                     },
                   ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Download Report'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () async {
+                  final pdfBytes = await PdfGenerator().generateRestaurantPdf(widget.restaurant);
+                  await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+                },
+              ),
+            ),
           ),
         ],
       ),
