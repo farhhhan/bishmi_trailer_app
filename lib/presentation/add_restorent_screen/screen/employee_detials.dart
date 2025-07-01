@@ -23,7 +23,7 @@ class EmployeeDetailsScreen extends StatelessWidget {
               // Employee header
               _buildEmployeeHeader(),
               const SizedBox(height: 24),
-
+               Text("Uniform Count :${employee.counts ?? 0}"),
               // Uniform items table
               _buildUniformConfigurationSection(),
               const SizedBox(height: 24),

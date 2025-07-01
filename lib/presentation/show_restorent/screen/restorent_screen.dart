@@ -2,6 +2,7 @@ import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_list_members.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_restorent.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/employee_detials.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
   TextEditingController searchController = TextEditingController();
   String searchText = '';
   String filterOrder = 'none'; // 'asc', 'desc', or 'none'
+  int numb = 0; // 'asc', 'desc', or 'none'
 
   @override
   void initState() {
@@ -48,33 +50,72 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
     }
   }
 
-  int getUniqueUniformItemNameCount(Restaurant restaurant) {
-    final Set<String> processedPositions = {};
+  Future<int> getUniqueUniformItemNameCount(String restaurantId) async {
+    final firestore = FirebaseFirestore.instance;
     final Set<String> uniqueItemNames = {};
 
-    for (var employee in restaurant.employees) {
-      final position = employee.position;
-      final gender = employee.gender;
+    try {
+      // 1. Get the restaurant document to determine the category
+      final restaurantDoc =
+          await firestore.collection('restaurants').doc(restaurantId).get();
+      if (!restaurantDoc.exists) return 0;
 
-      if (processedPositions.contains(position)) continue;
-      processedPositions.add(position);
+      final category = restaurantDoc.data()?['category'] as String?;
+      if (category == null) return 0;
 
-      final positions = PositionData.positionsByCategory[restaurant.category];
-      final positionData = positions?.firstWhere(
-        (p) => p.title == position,
-        orElse: () => WorkerPosition(title: '', items: {}),
-      );
+      // 2. Get all employees for this restaurant
+      final employeesSnapshot = await firestore
+          .collection('restaurants')
+          .doc(restaurantId)
+          .collection('employees')
+          .get();
 
-      if (positionData!.title.isEmpty) continue;
+      // Track processed positions to avoid duplicates
+      final Set<String> processedPositions = {};
 
-      final items = positionData.getUniformItems(gender);
-      for (var item in items) {
-        uniqueItemNames
-            .add(item.name.trim()); // avoid duplicates due to extra spaces
+      for (final employeeDoc in employeesSnapshot.docs) {
+        final position = employeeDoc.data()['position'] as String?;
+        final gender = employeeDoc.data()['gender'] as String?;
+
+        if (position == null || gender == null) continue;
+        if (processedPositions.contains(position)) continue;
+
+        processedPositions.add(position);
+
+        // 3. Get the position details from the category
+        final positionDoc = await firestore
+            .collection('categories')
+            .doc(category)
+            .collection('positions')
+            .doc(position)
+            .get();
+
+        if (!positionDoc.exists) continue;
+
+        // 4. Get uniform items for this position and gender
+        final uniformItemsByGender = positionDoc.data()?['uniformItemsByGender']
+            as Map<String, dynamic>?;
+        if (uniformItemsByGender == null) continue;
+
+        final itemsForGender = uniformItemsByGender[gender] as List<dynamic>?;
+        if (itemsForGender == null) continue;
+
+        // 5. Add all item names to the unique set
+        for (final item in itemsForGender) {
+          final itemName = item['name'] as String?;
+          if (itemName != null) {
+            uniqueItemNames.add(itemName.trim());
+          }
+        }
       }
+       setState(() {
+         numb= uniqueItemNames.length;
+       });
+      return uniqueItemNames.length;
+    } catch (e) {
+      print('Error getting unique uniform items count: $e');
+      return 0;
     }
-
-    return uniqueItemNames.length;
   }
 
   List<Restaurant> _filterRestaurants(List<Restaurant> restaurants) {
@@ -192,6 +233,8 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                   itemCount: filteredRestaurants.length,
                   itemBuilder: (context, index) {
                     final restaurant = filteredRestaurants[index];
+                    getUniqueUniformItemNameCount(restaurant.companyId);
+
                     return Dismissible(
                       key: Key(restaurant.name + restaurant.category),
                       background: Container(
@@ -301,7 +344,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      '${getUniqueUniformItemNameCount(restaurant)}',
+                                      '$numb',
                                       style:
                                           const TextStyle(color: Colors.black),
                                     ),
@@ -346,7 +389,10 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => AddNewCustomerScreen(restaurant: restaurant, isEdit: true,)));
+            builder: (_) => AddNewCustomerScreen(
+                  restaurant: restaurant,
+                  isEdit: true,
+                )));
   }
 
   void _showRestaurantDetails(Restaurant restaurant) {
@@ -637,7 +683,6 @@ class _RestaurantDetailsBottomSheetState
                             context,
                             MaterialPageRoute(
                               builder: (context) => EmployeeDetailsScreen(
-                               
                                 employee: employee,
                               ),
                             ),
@@ -696,8 +741,8 @@ class _RestaurantDetailsBottomSheetState
                                     _buildTag(employee.gender,
                                         _getGenderColor(employee.gender)),
                                     const SizedBox(width: 8),
-                                    _buildTag(
-                                        employee.position, Colors.blue.shade100),
+                                    _buildTag(employee.position,
+                                        Colors.blue.shade100),
                                   ],
                                 ),
                               ],

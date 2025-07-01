@@ -74,13 +74,14 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       position: fields[1] as String,
       uniformConfig: (fields[2] as List).cast<UniformItemConfig>(),
       gender: fields[3] as String,
+      counts: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Employee obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -90,7 +91,9 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       ..writeByte(3)
       ..write(obj.gender)
       ..writeByte(4)
-      ..write(obj.feedBack);
+      ..write(obj.feedBack)
+      ..writeByte(5)
+      ..write(obj.counts);
   }
 
   @override

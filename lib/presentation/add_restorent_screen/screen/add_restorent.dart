@@ -1,4 +1,5 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'add_list_members.dart';
@@ -22,11 +23,13 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
 
   String? selectedCategory;
   DateTime? selectedDate;
-  final categories = ['Restaurant', 'School', 'Office', 'Hospital', 'Hotel'];
+  List<String> categories = [];
+  bool isLoadingCategories = true;
 
   @override
   void initState() {
     super.initState();
+    _fetchCategories();
 
     // If editing an existing restaurant, populate the fields
     if (widget.restaurant != null) {
@@ -47,6 +50,27 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
       } catch (e) {
         selectedDate = DateTime.now();
       }
+    }
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .orderBy('name')
+          .get();
+      
+      setState(() {
+        categories = snapshot.docs.map((doc) => doc.id).toList();
+        isLoadingCategories = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoadingCategories = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load categories: $e')),
+      );
     }
   }
 
@@ -208,9 +232,6 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
     );
   }
 
-  // ... (keep the existing _buildTextField, _buildDatePickerField,
-  // and _buildCategoryDropdown methods unchanged)
-
   Widget _buildTextField(String label, TextEditingController controller,
       {TextInputType inputType = TextInputType.text}) {
     return TextFormField(
@@ -261,6 +282,35 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
   }
 
   Widget _buildCategoryDropdown() {
+    if (isLoadingCategories) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Row(
+          children: [
+            SizedBox(width: 8),
+            CircularProgressIndicator(color: Color(0xFFF0B623)),
+            SizedBox(width: 16),
+            Text('Loading categories...'),
+          ],
+        ),
+      );
+    }
+
+    if (categories.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text('No categories available'),
+      );
+    }
+
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         filled: true,

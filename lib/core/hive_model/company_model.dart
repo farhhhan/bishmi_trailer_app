@@ -71,12 +71,16 @@ class Employee {
   @HiveField(4)
   final String feedBack; // 'Male' or 'Female'
 
+   @HiveField(5)
+  final String counts; // 'Male' or 'Female'
+
   Employee({
     required this.feedBack,
     required this.name,
     required this.position,
     required this.uniformConfig,
     required this.gender,
+    required this.counts
   });
 }
 
@@ -379,3 +383,4 @@ class WorkerPosition {
     return uniformItemsByGender[gender] ?? uniformItemsByGender['Male']!;
   }
 }
+
