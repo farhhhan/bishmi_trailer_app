@@ -52,6 +52,10 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   crypto: ^3.0.3
   provider: ^6.1.5
+  printing: ^5.14.2
+  pdf: ^3.11.3
+  googleapis: ^14.0.0
+  googleapis_auth: ^2.0.0
   
 
 dev_dependencies:
@@ -81,6 +85,7 @@ flutter:
     - assets/images/home/custom_add.svg
     - assets/images/home/list.svg
     - assets/images/home/report.svg
+    - assets/filepath/bismi-16619-2114b242c756.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

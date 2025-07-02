@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bishmi_app/firebase_options.dart';
 import 'package:bishmi_app/presentation/add_cate/add_category.dart';
 import 'package:bishmi_app/presentation/splash_screen/splash_screen.dart';
@@ -25,6 +27,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // final file = File('C:/Users/HP/Desktop/new/bishmi-2382d4981b96.json');
+  // print(await file.exists()); // Should print true if the file is there
+  // print(await file.readAsString()); // Should print the file contents
+
 
   runApp(const MyApp());
 }

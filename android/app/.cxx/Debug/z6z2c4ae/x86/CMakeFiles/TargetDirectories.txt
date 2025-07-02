@@ -1,0 +1,2 @@
+C:/Users/HP/Desktop/projects/bishmi_trailer_app/android/app/.cxx/Debug/z6z2c4ae/x86/CMakeFiles/edit_cache.dir
+C:/Users/HP/Desktop/projects/bishmi_trailer_app/android/app/.cxx/Debug/z6z2c4ae/x86/CMakeFiles/rebuild_cache.dir

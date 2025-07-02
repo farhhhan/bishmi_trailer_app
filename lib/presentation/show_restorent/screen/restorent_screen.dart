@@ -1,4 +1,5 @@
 import 'package:bishmi_app/core/hive_model/company_model.dart';
+import 'package:bishmi_app/core/pdf/pdf_generator.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_list_members.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/add_restorent.dart';
 import 'package:bishmi_app/presentation/add_restorent_screen/screen/employee_detials.dart';
@@ -8,6 +9,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
 
 class RestaurantListScreen extends StatefulWidget {
   const RestaurantListScreen({Key? key}) : super(key: key);
@@ -757,6 +761,36 @@ class _RestaurantDetailsBottomSheetState
                       );
                     },
                   ),
+          ),
+            Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Download Report'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () async {
+                  // Load the service account JSON from assets
+                  final jsonString = await rootBundle.loadString('assets/filepath/bismi-16619-2114b242c756.json');
+                  final serviceAccountJson = json.decode(jsonString);
+                  final pdfBytes = await PdfGenerator().generateRestaurantPdf(
+                    widget.restaurant,
+                    uploadToDrive: true,
+                    serviceAccountJson: serviceAccountJson,
+                    driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
+                  );
+                  await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+                },
+              ),
+            ),
           ),
         ],
       ),
