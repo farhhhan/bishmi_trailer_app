@@ -409,6 +409,7 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
             PdfColors.cyan100,
             PdfColors.deepOrange100,
           ];
+          ///
           final List<pw.Widget> positionSections = [];
           for (final position in positions) {
             // Employees for this position
