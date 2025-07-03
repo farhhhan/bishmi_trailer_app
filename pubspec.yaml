@@ -90,7 +90,7 @@ flutter:
     - assets/images/home/custom_add.svg
     - assets/images/home/list.svg
     - assets/images/home/report.svg
-    - assets/filepath/bishmi-746470d35998.json
+    - assets/filepath/bishmi-8ebb35c4d29d.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

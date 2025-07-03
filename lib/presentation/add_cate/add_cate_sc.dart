@@ -188,29 +188,71 @@ class AddCategoryScreen extends StatelessWidget {
     final firebaseService = Provider.of<FirebaseService>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Add New Category')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: 'Category Name',
-                border: OutlineInputBorder(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1AB6BB), Color(0xFF1983A3)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                if (_controller.text.isNotEmpty) {
-                  await firebaseService.addCategory(_controller.text);
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Save Category'),
+          ),
+          elevation: 0,
+          title: Text('Add New Category', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.category_rounded, size: 48, color: Color(0xFF1AB6BB)),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: 'Category Name',
+                      labelStyle: TextStyle(color: Color(0xFF1983A3)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Color(0xFF1AB6BB), width: 2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.save, color: Colors.white),
+                      label: Text('Save Category', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1AB6BB),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        textStyle: TextStyle(fontSize: 16),
+                      ),
+                      onPressed: () async {
+                        if (_controller.text.isNotEmpty) {
+                          await firebaseService.addCategory(_controller.text);
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -223,53 +265,88 @@ class ViewCategoriesScreen extends StatelessWidget {
     final firebaseService = Provider.of<FirebaseService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Categories'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => AddCategoryScreen()),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1AB6BB), Color(0xFF1983A3)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
-        ],
+          elevation: 0,
+          title: Text('Categories', style: TextStyle(fontWeight: FontWeight.bold)),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add, color: Colors.white),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => AddCategoryScreen()),
+              ),
+            ),
+          ],
+        ),
       ),
-      body: FutureBuilder<List<String>>(
-        future: firebaseService.getCategories(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No categories found'));
-          }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: FutureBuilder<List<String>>(
+          future: firebaseService.getCategories(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No categories found', style: TextStyle(fontSize: 18, color: Colors.grey[700])));
+            }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final category = snapshot.data![index];
-              return ListTile(
-                title: Text(category),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PositionListScreen(category: category),
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final category = snapshot.data![index];
+                return Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Color(0xFF1AB6BB).withOpacity(0.15),
+                      child: Icon(Icons.category, color: Color(0xFF1AB6BB)),
+                    ),
+                    title: Text(
+                      category,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1983A3)),
+                    ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PositionListScreen(category: category),
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        await firebaseService.deleteCategory(category);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Category deleted')),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () async {
-                    await firebaseService.deleteCategory(category);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Category deleted')),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -285,76 +362,113 @@ class PositionListScreen extends StatelessWidget {
     final firebaseService = Provider.of<FirebaseService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(category),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => AddPositionScreen(category: category),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1AB6BB), Color(0xFF1983A3)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
           ),
-        ],
-      ),
-      body: FutureBuilder<List<FirebasePosition>>(
-        future: firebaseService.getPositionsByCategory(category),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No positions found'));
-          }
-
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final position = snapshot.data![index];
-              return ListTile(
-                title: Text(position.title),
-                subtitle: Text('Items: ${position.uniformItemsByGender.values.expand((x) => x).length}'),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PositionDetailScreen(
-                      category: category,
-                      position: position,
-                    ),
-                  ),
+          elevation: 0,
+          title: Text(category, style: TextStyle(fontWeight: FontWeight.bold)),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add, color: Colors.white),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddPositionScreen(category: category),
                 ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => EditPositionScreen(
-                            category: category,
-                            position: position,
-                          ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: FutureBuilder<List<FirebasePosition>>(
+          future: firebaseService.getPositionsByCategory(category),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No positions found', style: TextStyle(fontSize: 18, color: Colors.grey[700])));
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final position = snapshot.data![index];
+                final itemCount = position.uniformItemsByGender.values.expand((x) => x).length;
+                return Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    leading: CircleAvatar(
+                      backgroundColor: Color(0xFF1AB6BB).withOpacity(0.15),
+                      child: Icon(Icons.work_outline, color: Color(0xFF1AB6BB)),
+                    ),
+                    title: Text(
+                      position.title,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1983A3)),
+                    ),
+                    subtitle: Text('Items: $itemCount', style: TextStyle(color: Colors.grey[700])),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PositionDetailScreen(
+                          category: category,
+                          position: position,
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        await firebaseService.deletePosition(category, position.title);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Position deleted')),
-                        );
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Color(0xFF1983A3)),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditPositionScreen(
+                                category: category,
+                                position: position,
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            await firebaseService.deletePosition(category, position.title);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Position deleted')),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -372,9 +486,25 @@ class PositionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(position.title)),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1AB6BB), Color(0xFF1983A3)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+          elevation: 0,
+          title: Text(position.title, style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        backgroundColor: Color(0xFF1AB6BB),
+        child: Icon(Icons.add, color: Colors.white),
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -385,23 +515,35 @@ class PositionDetailScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: DefaultTabController(
-        length: position.uniformItemsByGender.keys.length,
-        child: Column(
-          children: [
-            TabBar(
-              tabs: position.uniformItemsByGender.keys
-                  .map((gender) => Tab(text: gender))
-                  .toList(),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: position.uniformItemsByGender.entries
-                    .map((entry) => _buildGenderItems(entry.value))
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: DefaultTabController(
+          length: position.uniformItemsByGender.keys.length,
+          child: Column(
+            children: [
+              TabBar(
+                labelColor: Color(0xFF1983A3),
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Color(0xFF1AB6BB),
+                tabs: position.uniformItemsByGender.keys
+                    .map((gender) => Tab(text: gender))
                     .toList(),
               ),
-            ),
-          ],
+              Expanded(
+                child: TabBarView(
+                  children: position.uniformItemsByGender.entries
+                      .map((entry) => _buildGenderItems(entry.value))
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -409,28 +551,41 @@ class PositionDetailScreen extends StatelessWidget {
 
   Widget _buildGenderItems(List<FirebaseUniformItem> items) {
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return ExpansionTile(
-          title: Text(item.name),
-          subtitle: Text(item.isRequired ? 'Required' : 'Optional'),
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Measurement Fields:', 
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  ...item.measurementFields.map((field) => ListTile(
-                    title: Text(field.name),
-                    subtitle: Text(field.unit),
-                  )).toList(),
-                ],
+        return Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              leading: Icon(Icons.checkroom, color: Color(0xFF1AB6BB)),
+              title: Text(
+                item.name,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1983A3)),
               ),
+              subtitle: Text(item.isRequired ? 'Required' : 'Optional', style: TextStyle(color: Colors.grey[700])),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Measurement Fields:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1983A3))),
+                      ...item.measurementFields.map((field) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(field.name, style: TextStyle(fontWeight: FontWeight.w500)),
+                        subtitle: Text(field.unit, style: TextStyle(color: Colors.grey[700])),
+                      )),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

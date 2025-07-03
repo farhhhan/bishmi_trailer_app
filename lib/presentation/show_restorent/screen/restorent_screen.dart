@@ -641,50 +641,61 @@ class _RestaurantDetailsBottomSheetState
 
           // Employee List
           Expanded(
-            child: filteredEmployees.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          searchQuery.isNotEmpty
-                              ? Icons.search_off
-                              : Icons.people_outline,
-                          size: 48,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          searchQuery.isNotEmpty
-                              ? 'No employees found for "$searchQuery"'
-                              : 'No employees match the selected filters',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: filteredEmployees.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            searchQuery.isNotEmpty
+                                ? Icons.search_off
+                                : Icons.people_outline,
+                            size: 56,
+                            color: Colors.grey.shade400,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (searchQuery.isNotEmpty ||
-                            genderFilter != 'All' ||
-                            typeFilter != 'All')
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  searchQuery = '';
-                                  genderFilter = 'All';
-                                  typeFilter = 'All';
-                                  _searchController.clear();
-                                });
-                              },
-                              child: const Text('Clear all filters'),
+                          const SizedBox(height: 18),
+                          Text(
+                            searchQuery.isNotEmpty
+                                ? 'No employees found for "$searchQuery"'
+                                : 'No employees match the selected filters',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
+                          if (searchQuery.isNotEmpty ||
+                              genderFilter != 'All' ||
+                              typeFilter != 'All')
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: TextButton.icon(
+                                icon: const Icon(Icons.clear, color: Colors.blueGrey),
+                                label: const Text('Clear all filters'),
+                                onPressed: () {
+                                  setState(() {
+                                    searchQuery = '';
+                                    genderFilter = 'All';
+                                    typeFilter = 'All';
+                                    _searchController.clear();
+                                  });
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                    key: ValueKey(filteredEmployees.length),
                     padding: const EdgeInsets.all(20),
                     itemCount: filteredEmployees.length,
                     itemBuilder: (context, index) {
@@ -700,75 +711,78 @@ class _RestaurantDetailsBottomSheetState
                             ),
                           );
                         },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade200,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                              radius: 24,
-                              backgroundColor: _getAvatarColor(employee.gender),
-                              child: Text(
-                                employee.name.isNotEmpty
-                                    ? employee.name[0].toUpperCase()
-                                    : '?',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                            title: Text(
-                              employee.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text(
-                                  employee.position,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    _buildTag(employee.gender,
-                                        _getGenderColor(employee.gender)),
-                                    const SizedBox(width: 8),
-                                    _buildTag(employee.position,
-                                        Colors.blue.shade100),
-                                  ],
+                        child: Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.shade200,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            trailing: const Icon(
-                              Icons.arrow_forward_ios,
-                              color: Colors.grey,
-                              size: 16,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(16),
+                              leading: CircleAvatar(
+                                radius: 24,
+                                backgroundColor: _getAvatarColor(employee.gender),
+                                child: Text(
+                                  employee.name.isNotEmpty
+                                      ? employee.name[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                employee.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    employee.position,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      _buildTag(employee.gender,
+                                          _getGenderColor(employee.gender)),
+                                      const SizedBox(width: 8),
+                                      _buildTag(employee.position,
+                                          Colors.blue.shade100),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: const Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.grey,
+                                size: 16,
+                              ),
                             ),
                           ),
                         ),
                       );
                     },
                   ),
+            ),
           ),
 
           Padding(
@@ -845,7 +859,7 @@ class _RestaurantDetailsBottomSheetState
                         }
                         final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
                         final userData = doc.data();
-                        final jsonString = await rootBundle.loadString('assets/filepath/bishmi-746470d35998.json');
+                        final jsonString = await rootBundle.loadString('assets/filepath/bishmi-8ebb35c4d29d.json');
                         final serviceAccountJson = json.decode(jsonString);
                         await PdfGenerator().generateRestaurantPdf(
                           widget.restaurant,
