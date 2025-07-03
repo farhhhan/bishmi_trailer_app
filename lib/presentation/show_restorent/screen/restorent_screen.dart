@@ -475,24 +475,42 @@ class _RestaurantDetailsBottomSheetState
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 20,
+            offset: Offset(0, -5),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // Handle bar
+          // Modern Handle bar
           Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 40,
-            height: 4,
+            margin: const EdgeInsets.only(top: 12),
+            width: 50,
+            height: 5,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2),
+              color: Colors.grey.shade400,
+              borderRadius: BorderRadius.circular(3),
             ),
           ),
 
-          // Header Section
+          // Enhanced Header Section
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade50, Colors.indigo.shade50],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -507,76 +525,115 @@ class _RestaurantDetailsBottomSheetState
                           Text(
                             widget.restaurant.name,
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black87,
+                              letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.restaurant.employees.length.toString() +
-                                ' Employees',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade100,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '${widget.restaurant.employees.length} Team Members',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue.shade700,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.grey),
-                      onPressed: () => Navigator.pop(context),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.grey),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-                // Stats Row - Shows filtered results
+                // Enhanced Stats Cards
                 Row(
                   children: [
-                    _buildStatItem(
-                      icon: Icons.people,
-                      count: filteredEmployees.length.toString(),
-                      label: searchQuery.isNotEmpty ||
-                              genderFilter != 'All' ||
-                              typeFilter != 'All'
-                          ? 'Found'
-                          : 'Total',
-                      color: Colors.blue,
+                    Expanded(
+                      child: _buildModernStatCard(
+                        icon: Icons.groups_rounded,
+                        count: filteredEmployees.length.toString(),
+                        label: searchQuery.isNotEmpty ||
+                                genderFilter != 'All' ||
+                                typeFilter != 'All'
+                            ? 'Found'
+                            : 'Total',
+                        color: Colors.blue,
+                        gradient: [Colors.blue.shade400, Colors.blue.shade600],
+                      ),
                     ),
-                    const SizedBox(width: 20),
-                    _buildStatItem(
-                      icon: Icons.male,
-                      count: filteredEmployees
-                          .where((e) => e.gender == 'Male')
-                          .length
-                          .toString(),
-                      label: 'Male',
-                      color: Colors.green,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildModernStatCard(
+                        icon: Icons.man_rounded,
+                        count: filteredEmployees
+                            .where((e) => e.gender == 'Male')
+                            .length
+                            .toString(),
+                        label: 'Male',
+                        color: Colors.green,
+                        gradient: [Colors.green.shade400, Colors.green.shade600],
+                      ),
                     ),
-                    const SizedBox(width: 20),
-                    _buildStatItem(
-                      icon: Icons.female,
-                      count: filteredEmployees
-                          .where((e) => e.gender == 'Female')
-                          .length
-                          .toString(),
-                      label: 'Female',
-                      color: Colors.pink,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildModernStatCard(
+                        icon: Icons.woman_rounded,
+                        count: filteredEmployees
+                            .where((e) => e.gender == 'Female')
+                            .length
+                            .toString(),
+                        label: 'Female',
+                        color: Colors.pink,
+                        gradient: [Colors.pink.shade400, Colors.pink.shade600],
+                      ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                // Search Bar
+                // Modern Search Bar
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: TextField(
                     controller: _searchController,
@@ -586,13 +643,34 @@ class _RestaurantDetailsBottomSheetState
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: 'Search by name or position...',
-                      hintStyle: const TextStyle(color: Colors.grey),
+                      hintText: 'Search employees...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 16,
+                      ),
                       border: InputBorder.none,
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Container(
+                        margin: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.search_rounded,
+                          color: Colors.blue.shade600,
+                          size: 20,
+                        ),
+                      ),
                       suffixIcon: searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.grey),
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: Colors.grey.shade500,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   searchQuery = '';
@@ -605,26 +683,27 @@ class _RestaurantDetailsBottomSheetState
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                // Filter Row
+                // Modern Filter Chips
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip(
+                      _buildModernFilterChip(
                         'Gender',
                         genderFilter,
                         ['All', 'Male', 'Female'],
                         (value) => setState(() => genderFilter = value),
+                        Icons.people_outline_rounded,
                       ),
                       const SizedBox(width: 12),
-                      const SizedBox(width: 12),
-                      _buildFilterChip(
+                      _buildModernFilterChip(
                         'Sort',
                         sortOrder,
                         ['A-Z', 'Z-A'],
                         (value) => setState(() => sortOrder = value),
+                        Icons.sort_rounded,
                       ),
                     ],
                   ),
@@ -633,385 +712,546 @@ class _RestaurantDetailsBottomSheetState
             ),
           ),
 
-          // Divider
-          Container(
-            height: 1,
-            color: Colors.grey.shade200,
-          ),
-
-          // Employee List
+          // Employee List with Modern Design
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.white,
               ),
               child: filteredEmployees.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            searchQuery.isNotEmpty
-                                ? Icons.search_off
-                                : Icons.people_outline,
-                            size: 56,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 18),
-                          Text(
-                            searchQuery.isNotEmpty
-                                ? 'No employees found for "$searchQuery"'
-                                : 'No employees match the selected filters',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          if (searchQuery.isNotEmpty ||
-                              genderFilter != 'All' ||
-                              typeFilter != 'All')
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: TextButton.icon(
-                                icon: const Icon(Icons.clear, color: Colors.blueGrey),
-                                label: const Text('Clear all filters'),
-                                onPressed: () {
-                                  setState(() {
-                                    searchQuery = '';
-                                    genderFilter = 'All';
-                                    typeFilter = 'All';
-                                    _searchController.clear();
-                                  });
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                    )
+                  ? _buildEmptyState()
                   : ListView.builder(
-                    key: ValueKey(filteredEmployees.length),
-                    padding: const EdgeInsets.all(20),
-                    itemCount: filteredEmployees.length,
-                    itemBuilder: (context, index) {
-                      final employee = filteredEmployees[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EmployeeDetailsScreen(
-                                employee: employee,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade200,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              leading: CircleAvatar(
-                                radius: 24,
-                                backgroundColor: _getAvatarColor(employee.gender),
-                                child: Text(
-                                  employee.name.isNotEmpty
-                                      ? employee.name[0].toUpperCase()
-                                      : '?',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                employee.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    employee.position,
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      _buildTag(employee.gender,
-                                          _getGenderColor(employee.gender)),
-                                      const SizedBox(width: 8),
-                                      _buildTag(employee.position,
-                                          Colors.blue.shade100),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              trailing: const Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.grey,
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      key: ValueKey(filteredEmployees.length),
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                      itemCount: filteredEmployees.length,
+                      itemBuilder: (context, index) {
+                        final employee = filteredEmployees[index];
+                        return _buildModernEmployeeCard(employee, index);
+                      },
+                    ),
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('Preview PDF'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      onPressed: () async {
-                        // Retrieve the current user's email from SharedPreferences
-                        final prefs = await SharedPreferences.getInstance();
-                        final currentUserEmail = prefs.getString('currentUserEmail');
-                        if (currentUserEmail == null) {
-                          Fluttertoast.showToast(
-                            msg: "No user email found. Please log in again.",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
-                          );
-                          return;
-                        }
-                        final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
-                        final userData = doc.data();
-                        final pdfBytes = await PdfGenerator().generateRestaurantPdf(
-                          widget.restaurant,
-                          uploadToDrive: false, // No upload
-                          currentUserData: userData,
-                        );
-                        await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.cloud_upload),
-                      label: const Text('Save to Drive'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      onPressed: () async {
-                        // Retrieve the current user's email from SharedPreferences
-                        final prefs = await SharedPreferences.getInstance();
-                        final currentUserEmail = prefs.getString('currentUserEmail');
-                        if (currentUserEmail == null) {
-                          print('No user email found. Please log in again.');
-                          Fluttertoast.showToast(
-                            msg: "No user email found. Please log in again.",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
-                          );
-                          return;
-                        }
-                        final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
-                        final userData = doc.data();
-                        final jsonString = await rootBundle.loadString('assets/filepath/bishmi-8ebb35c4d29d.json');
-                        final serviceAccountJson = json.decode(jsonString);
-                        await PdfGenerator().generateRestaurantPdf(
-                          widget.restaurant,
-                          uploadToDrive: true,
-                          serviceAccountJson: serviceAccountJson,
-                          driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
-                          currentUserData: userData,
-                        );
+          // Modern Action Buttons
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildModernActionButton(
+                    icon: Icons.preview_rounded,
+                    label: 'Preview PDF',
+                    gradient: [Colors.blue.shade500, Colors.blue.shade700],
+                    onPressed: () async {
+                      // Retrieve the current user's email from SharedPreferences
+                      final prefs = await SharedPreferences.getInstance();
+                      final currentUserEmail = prefs.getString('currentUserEmail');
+                      if (currentUserEmail == null) {
                         Fluttertoast.showToast(
-                          msg: "PDF uploaded to Google Drive!",
+                          msg: "No user email found. Please log in again.",
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0,
                         );
-                      },
-                    ),
+                        return;
+                      }
+                      final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
+                      final userData = doc.data();
+                      final pdfBytes = await PdfGenerator().generateRestaurantPdf(
+                        widget.restaurant,
+                        uploadToDrive: false, // No upload
+                        currentUserData: userData,
+                      );
+                      await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+                    },
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildModernActionButton(
+                    icon: Icons.cloud_upload_rounded,
+                    label: 'Save to Drive',
+                    gradient: [Colors.green.shade500, Colors.green.shade700],
+                    onPressed: () async {
+                      // Retrieve the current user's email from SharedPreferences
+                      final prefs = await SharedPreferences.getInstance();
+                      final currentUserEmail = prefs.getString('currentUserEmail');
+                      if (currentUserEmail == null) {
+                        print('No user email found. Please log in again.');
+                        Fluttertoast.showToast(
+                          msg: "No user email found. Please log in again.",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                        return;
+                      }
+                      final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
+                      final userData = doc.data();
+                      final jsonString = await rootBundle.loadString('assets/filepath/bishmi-8ebb35c4d29d.json');
+                      final serviceAccountJson = json.decode(jsonString);
+                      await PdfGenerator().generateRestaurantPdf(
+                        widget.restaurant,
+                        uploadToDrive: true,
+                        serviceAccountJson: serviceAccountJson,
+                        driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
+                        currentUserData: userData,
+                      );
+                      Fluttertoast.showToast(
+                        msg: "PDF uploaded to Google Drive!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
-}
 
-Widget _buildStatItem({
-  required IconData icon,
-  required String count,
-  required String label,
-  required Color color,
-}) {
-  return Row(
-    children: [
-      Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+  Widget _buildModernStatCard({
+    required IconData icon,
+    required String count,
+    required String label,
+    required Color color,
+    required List<Color> gradient,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Icon(icon, color: color, size: 20),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      const SizedBox(width: 8),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
         children: [
+          Icon(icon, color: Colors.white, size: 24),
+          const SizedBox(height: 8),
           Text(
             count,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-Widget _buildFilterChip(
-  String label,
-  String currentValue,
-  List<String> options,
-  ValueChanged<String> onChanged,
-) {
-  return PopupMenuButton<String>(
-    onSelected: onChanged,
-    itemBuilder: (context) => options.map((option) {
-      return PopupMenuItem<String>(
-        value: option,
-        child: Row(
-          children: [
-            if (option == currentValue)
-              const Icon(Icons.check, color: Colors.blue, size: 20),
-            if (option == currentValue) const SizedBox(width: 8),
-            Text(option),
-          ],
-        ),
-      );
-    }).toList(),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label: $currentValue',
             style: const TextStyle(
               fontSize: 12,
+              color: Colors.white70,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 4),
-          const Icon(Icons.arrow_drop_down, size: 20),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildTag(String text, Color color) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Expanded(
+  Widget _buildModernFilterChip(
+    String label,
+    String currentValue,
+    List<String> options,
+    ValueChanged<String> onChanged,
+    IconData icon,
+  ) {
+    return PopupMenuButton<String>(
+      onSelected: onChanged,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      itemBuilder: (context) => options.map((option) {
+        return PopupMenuItem<String>(
+          value: option,
+          child: Row(
+            children: [
+              if (option == currentValue)
+                Icon(Icons.check_circle, color: Colors.blue.shade600, size: 20),
+              if (option == currentValue) const SizedBox(width: 12),
+              Text(
+                option,
+                style: TextStyle(
+                  fontWeight: option == currentValue
+                      ? FontWeight.w600
+                      : FontWeight.normal,
+                  color: option == currentValue
+                      ? Colors.blue.shade600
+                      : Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.grey.shade600, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              '$label: $currentValue',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade600, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernEmployeeCard(Employee employee, int index) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300 + (index * 50)),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EmployeeDetailsScreen(
+                employee: employee,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                // Modern Avatar with gradient
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: _getAvatarGradient(employee.gender),
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _getAvatarColor(employee.gender).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      employee.name.isNotEmpty
+                          ? employee.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Info Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        employee.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        employee.position,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      // Modern Tags
+                      Row(
+                        children: [
+                          _buildModernTag(
+                            (employee.gender != null && employee.gender.isNotEmpty) 
+                                ? employee.gender 
+                                : 'Unknown',
+                            _getGenderColor(employee.gender),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildModernTag(
+                            (employee.position != null && employee.position.isNotEmpty) 
+                                ? employee.position 
+                                : 'Unknown',
+                            Colors.blue.shade50,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Modern Trailing Icon
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.grey.shade600,
+                    size: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
         ),
       ),
-    ),
-  );
-}
-
-Color _getAvatarColor(String gender) {
-  switch (gender.toLowerCase()) {
-    case 'male':
-      return Colors.blue;
-    case 'female':
-      return Colors.pink;
-    default:
-      return Colors.grey;
+    );
   }
-}
 
-Color _getGenderColor(String gender) {
-  switch (gender.toLowerCase()) {
-    case 'male':
-      return Colors.blue.shade100;
-    case 'female':
-      return Colors.pink.shade100;
-    default:
-      return Colors.grey.shade100;
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(
+              searchQuery.isNotEmpty
+                  ? Icons.search_off_rounded
+                  : Icons.people_outline_rounded,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            searchQuery.isNotEmpty
+                ? 'No employees found'
+                : 'No employees match filters',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            searchQuery.isNotEmpty
+                ? 'Try adjusting your search terms'
+                : 'Try changing your filter settings',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          if (searchQuery.isNotEmpty ||
+              genderFilter != 'All' ||
+              typeFilter != 'All')
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.clear_all_rounded),
+                label: const Text('Clear All Filters'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade50,
+                  foregroundColor: Colors.blue.shade700,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    searchQuery = '';
+                    genderFilter = 'All';
+                    typeFilter = 'All';
+                    _searchController.clear();
+                  });
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernActionButton({
+    required IconData icon,
+    required String label,
+    required List<Color> gradient,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: gradient.first.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Color _getAvatarColor(String? gender) {
+    if (gender == null || gender.isEmpty) return Colors.grey;
+    switch (gender.toLowerCase()) {
+      case 'male':
+        return Colors.blue;
+      case 'female':
+        return Colors.pink;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  List<Color> _getAvatarGradient(String? gender) {
+    if (gender == null || gender.isEmpty) {
+      return [Colors.grey.shade400, Colors.grey.shade600];
+    }
+    switch (gender.toLowerCase()) {
+      case 'male':
+        return [Colors.blue.shade400, Colors.blue.shade600];
+      case 'female':
+        return [Colors.pink.shade400, Colors.pink.shade600];
+      default:
+        return [Colors.grey.shade400, Colors.grey.shade600];
+    }
+  }
+
+  Color _getGenderColor(String? gender) {
+    if (gender == null || gender.isEmpty) return Colors.grey.shade100;
+    switch (gender.toLowerCase()) {
+      case 'male':
+        return Colors.blue.shade50;
+      case 'female':
+        return Colors.pink.shade50;
+      default:
+        return Colors.grey.shade100;
+    }
   }
 }
