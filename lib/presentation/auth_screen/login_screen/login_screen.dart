@@ -81,6 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() => _isLoading = false);
           return;
         }
+        // Store the current user's email in SharedPreferences
+        await prefs.setString('currentUserEmail', email);
         await prefs.setBool('isLoggedIn', true);
         await prefs.setBool('isAdminLoggedIn', false);
         Navigator.pushReplacement(

@@ -17,6 +17,8 @@ import 'dart:convert';
 
 import 'package:bishmi_app/core/pdf/pdf_generator.dart';
 import 'package:printing/printing.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RestaurantListScreen extends StatefulWidget {
   // ignore: use_super_parameters
@@ -774,32 +776,96 @@ class _RestaurantDetailsBottomSheetState
             child: SizedBox(
               width: double.infinity,
               height: 48,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.download),
-                label: const Text('Download Report'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('Preview PDF'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      onPressed: () async {
+                        // Retrieve the current user's email from SharedPreferences
+                        final prefs = await SharedPreferences.getInstance();
+                        final currentUserEmail = prefs.getString('currentUserEmail');
+                        if (currentUserEmail == null) {
+                          Fluttertoast.showToast(
+                            msg: "No user email found. Please log in again.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                          return;
+                        }
+                        final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
+                        final userData = doc.data();
+                        final pdfBytes = await PdfGenerator().generateRestaurantPdf(
+                          widget.restaurant,
+                          uploadToDrive: false, // No upload
+                          currentUserData: userData,
+                        );
+                        await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
+                      },
+                    ),
                   ),
-                  textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                onPressed: () async {
-                  // Load the service account JSON from assets
-                  final jsonString = await rootBundle.loadString(
-                      'assets/filepath/bismi-16619-2114b242c756.json');
-                  final serviceAccountJson = json.decode(jsonString);
-                  final pdfBytes = await PdfGenerator().generateRestaurantPdf(
-                    widget.restaurant,
-                    uploadToDrive: true,
-                    serviceAccountJson: serviceAccountJson,
-                    driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
-                  );
-
-                  await Printing.layoutPdf(
-                      onLayout: (format) async => pdfBytes);
-                },
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.cloud_upload),
+                      label: const Text('Save to Drive'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      onPressed: () async {
+                        // Retrieve the current user's email from SharedPreferences
+                        final prefs = await SharedPreferences.getInstance();
+                        final currentUserEmail = prefs.getString('currentUserEmail');
+                        if (currentUserEmail == null) {
+                          print('No user email found. Please log in again.');
+                          Fluttertoast.showToast(
+                            msg: "No user email found. Please log in again.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
+                          return;
+                        }
+                        final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
+                        final userData = doc.data();
+                        final jsonString = await rootBundle.loadString('assets/filepath/bishmi-746470d35998.json');
+                        final serviceAccountJson = json.decode(jsonString);
+                        await PdfGenerator().generateRestaurantPdf(
+                          widget.restaurant,
+                          uploadToDrive: true,
+                          serviceAccountJson: serviceAccountJson,
+                          driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
+                          currentUserData: userData,
+                        );
+                        Fluttertoast.showToast(
+                          msg: "PDF uploaded to Google Drive!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

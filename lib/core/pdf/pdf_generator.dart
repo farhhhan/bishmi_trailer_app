@@ -12,6 +12,7 @@ Future<Uint8List> generateRestaurantPdf(
   Map<String, dynamic>? serviceAccountJson,
   String? driveFolderId,
   bool uploadToDrive = false,
+  Map<String, dynamic>? currentUserData,
 }) async {
   final pdf = pw.Document();
 
@@ -145,8 +146,8 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
         ),
         // Data rows
         ...employees.asMap().entries.map((entry) {
-          final i = entry.key + 1;
-          final e = entry.value;
+        final i = entry.key + 1;
+        final e = entry.value;
           final config = e.uniformConfig.firstWhereOrNull(
             (c) => c.itemName == itemName && c.isNeeded,
           );
@@ -162,7 +163,7 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
                 border: pw.Border.all(color: PdfColors.white, width: 1),
               ),
               child: pw.Text(
-                i.toString(), 
+          i.toString(),
                 style: const pw.TextStyle(fontSize: 9),
                 textAlign: pw.TextAlign.center,
               ),
@@ -174,7 +175,7 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
                 border: pw.Border.all(color: PdfColors.white, width: 1),
               ),
               child: pw.Text(
-                e.name, 
+          e.name,
                 style: const pw.TextStyle(fontSize: 9),
               ),
             ),
@@ -293,38 +294,97 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
         pw.SizedBox(height: 16),
 
         // Restaurant Info
-        pw.Column(
+        pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Row(
+            // Left: Restaurant details
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Customer Name:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(width: 8),
-                pw.Text(restaurant.name, style: pw.TextStyle(fontSize: 14)),
+                pw.Row(
+                  children: [
+                    pw.Text('Customer Name:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text(restaurant.name, style: pw.TextStyle(fontSize: 14)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Location:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text(restaurant.address ?? 'N/A', style: pw.TextStyle(fontSize: 14)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Deadline:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text(restaurant.date ?? '', style: pw.TextStyle(fontSize: 14, color: PdfColors.red)),
+                  ],
+                ),
+                 pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Contact:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text('${restaurant.mobile}', style: pw.TextStyle(fontSize: 14)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Total Person:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text('${restaurant.employees.length}', style: pw.TextStyle(fontSize: 14)),
+                  ],
+                ),
               ],
             ),
-            pw.SizedBox(height: 4),
-            pw.Row(
+            // Right: User details
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
               children: [
-                pw.Text('Location:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(width: 8),
-                pw.Text(restaurant.address ?? 'N/A', style: pw.TextStyle(fontSize: 14)),
-              ],
-            ),
-            pw.SizedBox(height: 4),
-            pw.Row(
-              children: [
-                pw.Text('Deadline:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(width: 8),
-                pw.Text(restaurant.date ?? '', style: pw.TextStyle(fontSize: 14, color: PdfColors.red)),
-              ],
-            ),
-            pw.SizedBox(height: 4),
-            pw.Row(
-              children: [
-                pw.Text('Total Person:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(width: 8),
-                pw.Text('${restaurant.employees.length}', style: pw.TextStyle(fontSize: 14)),
+                pw.Row(
+                  children: [
+                    pw.Text('Generated:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(width: 8),
+                    pw.Text(
+                      () {
+                        final uaeNow = DateTime.now().toUtc().add(const Duration(hours: 4));
+                        return '${uaeNow.day.toString().padLeft(2, '0')}/${uaeNow.month.toString().padLeft(2, '0')}/${uaeNow.year} '
+                            '${uaeNow.hour.toString().padLeft(2, '0')}:${uaeNow.minute.toString().padLeft(2, '0')}';
+                      }(),
+                      style: pw.TextStyle(fontSize: 14, color: PdfColors.blueGrey800),
+                    ),
+                  ],
+                ),
+                if (currentUserData != null && (currentUserData['username'] != null || currentUserData['employeeId'] != null || currentUserData['email'] != null || currentUserData['phonenumber'] != null)) ...[
+                  pw.SizedBox(height: 2),
+                  if (currentUserData['username'] != null)
+                    pw.Text('Emp Name: ${currentUserData['username']}', style: pw.TextStyle(fontSize: 12)),
+                  if (currentUserData['employeeId'] != null)
+                    pw.Text('Emp ID: ${currentUserData['employeeId']}', style: pw.TextStyle(fontSize: 12)),
+                  if (currentUserData['email'] != null)
+                    pw.Text('Email: ${currentUserData['email']}', style: pw.TextStyle(fontSize: 12)),
+                  if (currentUserData['phoneNumber'] != null)
+                    pw.Text(
+                      'Contact: ' +
+                        (() {
+                          final phone = currentUserData['phoneNumber'].toString();
+                          if (phone.startsWith('+971')) {
+                            return phone;
+                          } else if (phone.startsWith('0')) {
+                            return '+971' + phone.substring(1);
+                          } else {
+                            return '+971$phone';
+                          }
+                        })(),
+                      style: pw.TextStyle(fontSize: 12),
+                    ),
+                ],
               ],
             ),
           ],
@@ -416,7 +476,7 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
             positionSections.add(
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
+          children: [
                   pw.Container(
                     width: double.infinity,
                     color: PdfColors.grey200,
@@ -456,9 +516,13 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
 
   // Optionally upload to Google Drive
   if (uploadToDrive && serviceAccountJson != null) {
+    // Format the file name: clientName_report_dd-MM-yyyy.pdf
+    String clientName = restaurant.name.replaceAll(' ', '_');
+    String dateStr = (restaurant.date ?? '').replaceAll('/', '-');
+    String fileName = '${clientName}_report_${dateStr}.pdf';
     // Save to a temporary file
     final tempDir = Directory.systemTemp;
-    final tempFile = File('${tempDir.path}/restaurant_report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final tempFile = File('${tempDir.path}/$fileName');
     await tempFile.writeAsBytes(pdfBytes);
     await uploadPdfToDrive(
       pdfFile: tempFile,
