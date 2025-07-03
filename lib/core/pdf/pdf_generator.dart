@@ -35,7 +35,7 @@ Future<Uint8List> generateRestaurantPdf(
     );
   }
 
-  pw.Widget sectionHeader(String label, int count, PdfColor color) {
+  pw.Widget sectionHeader(String label, int count, PdfColor color, {required String category}) {
     return pw.Container(
       width: double.infinity,
       color: color,
@@ -45,6 +45,7 @@ Future<Uint8List> generateRestaurantPdf(
           pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           pw.Spacer(),
           pw.Text(count.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          
         ],
       ),
     );
@@ -464,7 +465,7 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      sectionHeader(item, count, color),
+                      sectionHeader(item, count, color, category: restaurant.category),
                       employeeTable(employees, item, color),
                       pw.SizedBox(height: 16),
                     ],
