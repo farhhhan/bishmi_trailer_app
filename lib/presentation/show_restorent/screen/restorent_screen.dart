@@ -15,6 +15,7 @@ import 'package:printing/printing.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:crypto/crypto.dart';
 
 class RestaurantListScreen extends StatefulWidget {
   // ignore: use_super_parameters
@@ -1262,3 +1263,16 @@ class _InfoItem extends StatelessWidget {
     );
   }
 }
+
+// Add this function to generate a hash for the restaurant data
+String generateRestaurantHash(Restaurant restaurant) {
+  final jsonStr = jsonEncode({
+    'name': restaurant.name,
+    'date': restaurant.date,
+    'category': restaurant.category,
+    'address': restaurant.address,
+    'employees': restaurant.employees.map((e) => e.toJson()).toList(),
+  });
+  return sha256.convert(utf8.encode(jsonStr)).toString();
+}
+

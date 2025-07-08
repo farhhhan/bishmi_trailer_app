@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 10,
                   ),
                   const Text(
-                    "Add new Customer or Restaurant",
+                    "Add new Customer",
                     style: TextStyle(
                         color: Colors.green,
                         fontSize: 14,

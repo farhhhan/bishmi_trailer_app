@@ -82,6 +82,17 @@ class Employee {
     required this.gender,
     required this.counts
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'position': position,
+      'uniformConfig': uniformConfig.map((u) => u.toJson()).toList(),
+      'gender': gender,
+      'feedBack': feedBack,
+      'counts': counts,
+    };
+  }
 }
 
 @HiveType(typeId: 2)
@@ -124,6 +135,20 @@ class UniformItemConfig {
     this.materialType,
     this.capStyle,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'itemName': itemName,
+      'isNeeded': isNeeded,
+      'isReadyMade': isReadyMade,
+      'selectedSize': selectedSize,
+      'measurements': measurements,
+      'sleeveType': sleeveType,
+      'tshirtStyle': tshirtStyle,
+      'materialType': materialType,
+      'capStyle': capStyle,
+    };
+  }
 }
 
 class PositionData {

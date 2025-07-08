@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:printing/printing.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class SavedPdfsPage extends StatefulWidget {
   const SavedPdfsPage({Key? key}) : super(key: key);
@@ -143,9 +143,14 @@ class _SavedPdfsPageState extends State<SavedPdfsPage> {
                             onPressed: () async {
                               final pdfBytes = pdfBox.get(fileName) as List<int>?;
                               if (pdfBytes != null) {
-                                await Printing.layoutPdf(
-                                  onLayout: (format) async => Uint8List.fromList(pdfBytes),
-                                  name: fileName,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PdfViewOnlyPage(
+                                      pdfBytes: Uint8List.fromList(pdfBytes),
+                                      fileName: fileName,
+                                    ),
+                                  ),
                                 );
                               }
                             },
@@ -193,6 +198,26 @@ class _SavedPdfsPageState extends State<SavedPdfsPage> {
                 );
               },
             ),
+    );
+  }
+}
+
+class PdfViewOnlyPage extends StatelessWidget {
+  final Uint8List pdfBytes;
+  final String fileName;
+
+  const PdfViewOnlyPage({required this.pdfBytes, required this.fileName, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(fileName, style: const TextStyle(fontSize: 18)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: SfPdfViewer.memory(pdfBytes),
     );
   }
 } 

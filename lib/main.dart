@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       create: (_) => FirebaseService(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+     
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,

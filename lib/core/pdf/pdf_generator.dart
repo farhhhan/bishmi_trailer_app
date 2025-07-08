@@ -4,7 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:bishmi_app/core/hive_model/company_model.dart';
 import 'package:collection/collection.dart';
-import 'package:bishmi_app/core/pdf/drive_upload.dart';
+
 //mm
 class PdfGenerator {
 Future<Uint8List> generateRestaurantPdf(
@@ -526,11 +526,11 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
     final tempDir = Directory.systemTemp;
     final tempFile = File('${tempDir.path}/$fileName');
     await tempFile.writeAsBytes(pdfBytes);
-    await uploadPdfToDrive(
-      pdfFile: tempFile,
-      serviceAccountJson: serviceAccountJson,
-      folderId: driveFolderId,
-    );
+    // await uploadPdfToDrive(
+    //   pdfFile: tempFile,
+    //   serviceAccountJson: serviceAccountJson,
+    //   folderId: driveFolderId,
+    // );
     // Optionally delete the temp file after upload
     await tempFile.delete();
   }
