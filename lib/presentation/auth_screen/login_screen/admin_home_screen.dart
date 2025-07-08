@@ -81,81 +81,86 @@ class AdminHomeScreen extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
               image: DecorationImage(
-                image: AssetImage('assets/admin_bg.png'), // Add a subtle admin background image to assets
+                image: AssetImage('assets/images/admin_home.jpg'), // Add a subtle admin background image to assets
                 fit: BoxFit.cover,
                 opacity: 0.08,
               ),
             ),
           ),
-          Center(
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.08, vertical: screenHeight * 0.12),
+          SingleChildScrollView(
+            child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 38,
-                      backgroundColor: const Color(0xFF1AB6BB),
-                      child: Icon(Icons.admin_panel_settings, color: Colors.white, size: 40),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Welcome, Admin!',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1983A3),
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Manage your platform with ease.',
-                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.add_box_rounded, color: Colors.white),
-                        label: Text('Add New Category', style: TextStyle(fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1AB6BB),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          textStyle: TextStyle(fontSize: 16),
+                padding: EdgeInsets.symmetric(vertical: screenHeight * 0.12),
+                child: Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 38,
+                          backgroundColor: const Color(0xFF1AB6BB),
+                          child: Icon(Icons.admin_panel_settings, color: Colors.white, size: 40),
                         ),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => AddCategoryScreen()),
+                        const SizedBox(height: 18),
+                        Text(
+                          'Welcome, Admin!',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1983A3),
+                            letterSpacing: 1.2,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Manage your platform with ease.',
+                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.add_box_rounded, color: Colors.white),
+                            label: Text('Add New Category', style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF1AB6BB),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              textStyle: TextStyle(fontSize: 16),
+                            ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => AddCategoryScreen()),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.view_list_rounded, color: Color(0xFF1AB6BB)),
+                            label: Text('View Categories', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1AB6BB))),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              side: BorderSide(color: Color(0xFF1AB6BB), width: 2),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              textStyle: TextStyle(fontSize: 16),
+                              elevation: 0,
+                            ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => ViewCategoriesScreen()),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.view_list_rounded, color: Color(0xFF1AB6BB)),
-                        label: Text('View Categories', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1AB6BB))),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: BorderSide(color: Color(0xFF1AB6BB), width: 2),
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          textStyle: TextStyle(fontSize: 16),
-                          elevation: 0,
-                        ),
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => ViewCategoriesScreen()),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

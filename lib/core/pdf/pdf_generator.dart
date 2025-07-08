@@ -518,9 +518,9 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
 
   // Optionally upload to Google Drive
   if (uploadToDrive && serviceAccountJson != null) {
-    // Format the file name: clientName_report_dd-MM-yyyy.pdf
+    // Format the file name: clientName_report_dd-MM-yyyy.pdfr
     String clientName = restaurant.name.replaceAll(' ', '_');
-    String dateStr = (restaurant.date ?? '').replaceAll('/', '-');
+    String dateStr = (restaurant.date).replaceAll('/', '-');
     String fileName = '${clientName}_report_${dateStr}.pdf';
     // Save to a temporary file
     final tempDir = Directory.systemTemp;

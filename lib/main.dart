@@ -9,6 +9,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/hive_model/company_model.dart';
 import 'presentation/add_cate/add_cate_sc.dart';
@@ -16,13 +17,13 @@ import 'presentation/add_cate/add_cate_sc.dart';
 void main() async {
   tz.initializeTimeZones();
   WidgetsFlutterBinding.ensureInitialized();
-  final appDocumentDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDocumentDir.path);
+  await Hive.initFlutter();
   Hive.registerAdapter(RestaurantAdapter());
   Hive.registerAdapter(EmployeeAdapter());
   Hive.registerAdapter(UniformItemConfigAdapter());
 
   await Hive.openBox<Restaurant>('restaurants');
+  await Hive.openBox('pdfs');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

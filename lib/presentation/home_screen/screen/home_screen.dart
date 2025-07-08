@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bishmi_app/constant/images/constant_images.dart';
 import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
+import 'package:bishmi_app/presentation/pdf/saved_pdfs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -277,56 +278,65 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    width: 160,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        CustomImageView(
-                          fit: BoxFit.contain,
-                          radius: BorderRadius.circular(12),
-                          imagePath: ConstantImages.reportSvg,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Report",
-                          style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: const Color.fromARGB(255, 231, 167, 71)),
-                          child: const Center(
-                            child: Text(
-                              "Show",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
+                  InkWell(
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SavedPdfsPage(),
+                          ));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      width: 160,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                        )
-                      ],
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          CustomImageView(
+                            fit: BoxFit.contain,
+                            radius: BorderRadius.circular(12),
+                            imagePath: ConstantImages.reportSvg,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Text(
+                            "Report",
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: const Color.fromARGB(255, 231, 167, 71)),
+                            child: const Center(
+                              child: Text(
+                                "Show",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   )
                 ],

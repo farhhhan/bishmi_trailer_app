@@ -14,10 +14,6 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
-
-import 'package:bishmi_app/core/pdf/pdf_generator.dart';
-import 'package:printing/printing.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RestaurantListScreen extends StatefulWidget {
@@ -298,88 +294,91 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: InkWell(
-                          onTap: () => _showRestaurantDetails(restaurant),
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 2,
-                            shadowColor: Colors.grey,
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.amber.shade100,
-                                    child: const Icon(Icons.restaurant),
-                                  ),
-                                  title: Text(
-                                    "${restaurant.name}",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  subtitle: Text(restaurant.category),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Spacer(),
-                                    IconButton(
-                                      onPressed: () =>
-                                          _showRestaurantDetails(restaurant),
-                                      icon: const Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const SizedBox(width: 40),
-                                    const Icon(
-                                      Icons.people_outline_sharp,
-                                      size: 20,
-                                      color: Color.fromARGB(255, 24, 119, 126),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      '${restaurant.employees.length}',
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                    const SizedBox(width: 50),
-                                    const Icon(
-                                      FontAwesomeIcons.shirt,
-                                      size: 15,
-                                      color: Color.fromARGB(255, 24, 119, 126),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      '$numb',
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                    const SizedBox(width: 50),
-                                    const Icon(
-                                      FontAwesomeIcons.clock,
-                                      size: 15,
-                                      color: Color.fromARGB(255, 24, 119, 126),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      _getRemainingDaysText(restaurant.date),
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
+  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+  child: InkWell(
+    onTap: () => _showRestaurantDetails(restaurant),
+    child: Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      shadowColor: Colors.black12,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Row: Icon + Name + Category
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.amber.shade100,
+                  child: const Icon(Icons.restaurant, color: Colors.black87),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        restaurant.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
+                      Text(
+                        restaurant.category,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _showRestaurantDetails(restaurant),
+                  icon: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Bottom Row: Stats
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _InfoItem(
+                  //icon: Icons.people_outline_sharp,
+                  label: '${restaurant.employees.length}',
+                  iconData:Icons.people_outline_sharp,
+
+                ),
+                _InfoItem(
+                  iconData: FontAwesomeIcons.shirt,
+                  label: '$numb',
+                  iconSize: 15,
+                ),
+                _InfoItem(
+                  iconData: FontAwesomeIcons.clock,
+                  label: _getRemainingDaysText(restaurant.date),
+                  iconSize: 15,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+
                     );
                   },
                 );
@@ -472,8 +471,14 @@ class _RestaurantDetailsBottomSheetState
     List<Employee> filteredEmployees = getFilteredEmployees();
 
     return Container(
+
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
+        //  gradient: LinearGradient(
+        //        // colors: [Colors.blue.shade50, Colors.indigo.shade50],
+        //         begin: Alignment.topLeft,
+        //         end: Alignment.bottomRight,
+        //       ),
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
@@ -501,11 +506,11 @@ class _RestaurantDetailsBottomSheetState
           Container(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blue.shade50, Colors.indigo.shade50],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              // gradient: LinearGradient(
+              //  // colors: [Colors.blue.shade50, Colors.indigo.shade50],
+              //   begin: Alignment.topLeft,
+              //   end: Alignment.bottomRight,
+              // ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
@@ -575,52 +580,52 @@ class _RestaurantDetailsBottomSheetState
 
                 const SizedBox(height: 24),
 
-                // Enhanced Stats Cards
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildModernStatCard(
-                        icon: Icons.groups_rounded,
-                        count: filteredEmployees.length.toString(),
-                        label: searchQuery.isNotEmpty ||
-                                genderFilter != 'All' ||
-                                typeFilter != 'All'
-                            ? 'Found'
-                            : 'Total',
-                        color: Colors.blue,
-                        gradient: [Colors.blue.shade400, Colors.blue.shade600],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildModernStatCard(
-                        icon: Icons.man_rounded,
-                        count: filteredEmployees
-                            .where((e) => e.gender == 'Male')
-                            .length
-                            .toString(),
-                        label: 'Male',
-                        color: Colors.green,
-                        gradient: [Colors.green.shade400, Colors.green.shade600],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildModernStatCard(
-                        icon: Icons.woman_rounded,
-                        count: filteredEmployees
-                            .where((e) => e.gender == 'Female')
-                            .length
-                            .toString(),
-                        label: 'Female',
-                        color: Colors.pink,
-                        gradient: [Colors.pink.shade400, Colors.pink.shade600],
-                      ),
-                    ),
-                  ],
-                ),
+                // // Enhanced Stats Cards
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: _buildModernStatCard(
+                //         icon: Icons.groups_rounded,
+                //         count: filteredEmployees.length.toString(),
+                //         label: searchQuery.isNotEmpty ||
+                //                 genderFilter != 'All' ||
+                //                 typeFilter != 'All'
+                //             ? 'Found'
+                //             : 'Total',
+                //         color: Colors.blue,
+                //         gradient: [Colors.blue.shade400, Colors.blue.shade600],
+                //       ),
+                //     ),
+                //     const SizedBox(width: 12),
+                //     Expanded(
+                //       child: _buildModernStatCard(
+                //         icon: Icons.man_rounded,
+                //         count: filteredEmployees
+                //             .where((e) => e.gender == 'Male')
+                //             .length
+                //             .toString(),
+                //         label: 'Male',
+                //         color: Colors.green,
+                //         gradient: [Colors.green.shade400, Colors.green.shade600],
+                //       ),
+                //     ),
+                //     const SizedBox(width: 12),
+                //     Expanded(
+                //       child: _buildModernStatCard(
+                //         icon: Icons.woman_rounded,
+                //         count: filteredEmployees
+                //             .where((e) => e.gender == 'Female')
+                //             .length
+                //             .toString(),
+                //         label: 'Female',
+                //         color: Colors.pink,
+                //         gradient: [Colors.pink.shade400, Colors.pink.shade600],
+                //       ),
+                //     ),
+                //   ],
+                // ),
 
-                const SizedBox(height: 24),
+               // const SizedBox(height: 24),
 
                 // Modern Search Bar
                 Container(
@@ -754,14 +759,14 @@ class _RestaurantDetailsBottomSheetState
                       final prefs = await SharedPreferences.getInstance();
                       final currentUserEmail = prefs.getString('currentUserEmail');
                       if (currentUserEmail == null) {
-                        Fluttertoast.showToast(
-                          msg: "No user email found. Please log in again.",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
+                        // Fluttertoast.showToast(
+                        //   msg: "No user email found. Please log in again.",
+                        //   toastLength: Toast.LENGTH_SHORT,
+                        //   gravity: ToastGravity.BOTTOM,
+                        //   backgroundColor: Colors.red,
+                        //   textColor: Colors.white,
+                        //   fontSize: 16.0,
+                        // );
                         return;
                       }
                       final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
@@ -771,50 +776,22 @@ class _RestaurantDetailsBottomSheetState
                         uploadToDrive: false, // No upload
                         currentUserData: userData,
                       );
-                      await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildModernActionButton(
-                    icon: Icons.cloud_upload_rounded,
-                    label: 'Save to Drive',
-                    gradient: [Colors.green.shade500, Colors.green.shade700],
-                    onPressed: () async {
-                      // Retrieve the current user's email from SharedPreferences
-                      final prefs = await SharedPreferences.getInstance();
-                      final currentUserEmail = prefs.getString('currentUserEmail');
-                      if (currentUserEmail == null) {
-                        print('No user email found. Please log in again.');
-                        Fluttertoast.showToast(
-                          msg: "No user email found. Please log in again.",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
-                        return;
-                      }
-                      final doc = await FirebaseFirestore.instance.collection('users').doc(currentUserEmail).get();
-                      final userData = doc.data();
-                      final jsonString = await rootBundle.loadString('assets/filepath/bishmi-8ebb35c4d29d.json');
-                      final serviceAccountJson = json.decode(jsonString);
-                      await PdfGenerator().generateRestaurantPdf(
-                        widget.restaurant,
-                        uploadToDrive: true,
-                        serviceAccountJson: serviceAccountJson,
-                        driveFolderId: '1b5WW5FGI-AT7VlrhrEkt28bOGHvTaSMD',
-                        currentUserData: userData,
-                      );
-                      Fluttertoast.showToast(
-                        msg: "PDF uploaded to Google Drive!",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.green,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
+
+                      // Generate file name: ClientName_D-M-YY.pdf (current date, +4h offset)
+                      final uaeNow = DateTime.now().toUtc().add(const Duration(hours: 4));
+                      final day = uaeNow.day;
+                      final month = uaeNow.month;
+                      final year = uaeNow.year % 100;
+                      String clientName = widget.restaurant.name.replaceAll(' ', '_');
+                      String fileName = '${clientName}_${day}-${month}-${year}.pdf';
+
+                      // Save PDF to Hive
+                      final box = Hive.box('pdfs');
+                      await box.put(fileName, pdfBytes);
+
+                      await Printing.layoutPdf(
+                        onLayout: (format) async => pdfBytes,
+                        name: fileName,
                       );
                     },
                   ),
@@ -947,7 +924,7 @@ class _RestaurantDetailsBottomSheetState
   Widget _buildModernEmployeeCard(Employee employee, int index) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 300 + (index * 50)),
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16, left: 10, right: 10),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -1046,13 +1023,13 @@ class _RestaurantDetailsBottomSheetState
                                 : 'Unknown',
                             _getGenderColor(employee.gender),
                           ),
-                          const SizedBox(width: 8),
-                          _buildModernTag(
-                            (employee.position != null && employee.position.isNotEmpty) 
-                                ? employee.position 
-                                : 'Unknown',
-                            Colors.blue.shade50,
-                          ),
+                          // const SizedBox(width: 8),
+                          // _buildModernTag(
+                          //   (employee.position != null && employee.position.isNotEmpty) 
+                          //       ? employee.position 
+                          //       : 'Unknown',
+                          //   Colors.blue.shade50,
+                          // ),
                         ],
                       ),
                     ],
@@ -1253,5 +1230,35 @@ class _RestaurantDetailsBottomSheetState
       default:
         return Colors.grey.shade100;
     }
+  }
+}
+class _InfoItem extends StatelessWidget {
+  final IconData iconData;
+  final String label;
+  final double iconSize;
+
+  const _InfoItem({
+    Key? key,
+    required this.iconData,
+    required this.label,
+    this.iconSize = 20,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          iconData,
+          size: iconSize,
+          color: Color.fromARGB(255, 24, 119, 126),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.black),
+        ),
+      ],
+    );
   }
 }

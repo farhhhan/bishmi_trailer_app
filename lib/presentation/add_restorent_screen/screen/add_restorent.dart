@@ -300,7 +300,10 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
       );
     }
 
-    if (categories.isEmpty) {
+    // Remove duplicates
+    final uniqueCategories = categories.toSet().toList();
+
+    if (uniqueCategories.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
@@ -310,6 +313,9 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
         child: const Text('No categories available'),
       );
     }
+
+    // Ensure selectedCategory is in the list, else set to null
+    final dropdownValue = uniqueCategories.contains(selectedCategory) ? selectedCategory : null;
 
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
@@ -322,11 +328,11 @@ class _AddNewCustomerScreenState extends State<AddNewCustomerScreen> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-      items: categories
+      items: uniqueCategories
           .map((category) =>
               DropdownMenuItem(value: category, child: Text(category)))
           .toList(),
-      value: selectedCategory,
+      value: dropdownValue,
       onChanged: (value) {
         setState(() {
           selectedCategory = value;
