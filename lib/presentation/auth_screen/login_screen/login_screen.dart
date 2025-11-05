@@ -1,4 +1,4 @@
-import 'package:bishmi_app/presentation/auth_screen/signup_screen.dart/signup_screen.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,9 +9,11 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 import '../../../constant/images/constant_images.dart';
+import '../../../core/firebase_model/collection_auth.dart';
 import '../../home_screen/screen/home_screen.dart';
-import 'package:bishmi_app/core/firebase_model/collection_auth.dart';
-import 'package:bishmi_app/presentation/auth_screen/login_screen/admin_home_screen.dart';
+import '../signup_screen.dart/signup_screen.dart';
+import 'admin_home_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -59,8 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
         final password = _passwordController.text.trim();
         final prefs = await SharedPreferences.getInstance();
         final adminEmail = prefs.getString('adminEmail') ?? 'admin@bishmi.com';
-        final adminPassword = prefs.getString('adminPassword') ?? sha256.convert(utf8.encode('admin123')).toString();
-        final inputPasswordHash = sha256.convert(utf8.encode(password)).toString();
+        final adminPassword = prefs.getString('adminPassword') ??
+            sha256.convert(utf8.encode('admin123')).toString();
+        final inputPasswordHash =
+            sha256.convert(utf8.encode(password)).toString();
         // Admin login logic
         if (email == adminEmail && inputPasswordHash == adminPassword) {
           await prefs.setBool('isAdminLoggedIn', true);
@@ -73,7 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
         // User login logic
-        final success = await CollectionAuth.loginWithEmailPassword(email, password);
+        final success =
+            await CollectionAuth.loginWithEmailPassword(email, password);
         if (!success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Invalid email or password.')),
@@ -91,7 +96,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
+          SnackBar(
+              content: Text('An unexpected error occurred: ${e.toString()}')),
         );
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -111,24 +117,24 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.white,
           body: Stack(
             children: [
-                Positioned(
-            top: MediaQuery.of(context).size.height * 0.46,
-            left: 0,
-            right: 0,
-            bottom: MediaQuery.of(context).size.height * 0.10,
-            child: CustomEllipse(
-              width: MediaQuery.of(context).size.width * 1.5,
-              height: MediaQuery.of(context).size.height * 0.6,
-              colors: const [
-                Color.fromARGB(255, 26, 182, 187),
-                Color.fromARGB(255, 25, 131, 163),
-              ],
-              x: MediaQuery.of(context).size.width * 0.5,
-              y: MediaQuery.of(context).size.height * 0.5,
-              shadowBlurRadius: 0.5,
-              shadowOffset: const Offset(1, 1),
-            ),
-          ),
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.46,
+                left: 0,
+                right: 0,
+                bottom: MediaQuery.of(context).size.height * 0.10,
+                child: CustomEllipse(
+                  width: MediaQuery.of(context).size.width * 1.5,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  colors: const [
+                    Color.fromARGB(255, 26, 182, 187),
+                    Color.fromARGB(255, 25, 131, 163),
+                  ],
+                  x: MediaQuery.of(context).size.width * 0.5,
+                  y: MediaQuery.of(context).size.height * 0.5,
+                  shadowBlurRadius: 0.5,
+                  shadowOffset: const Offset(1, 1),
+                ),
+              ),
               SafeArea(
                 child: SingleChildScrollView(
                   // Ensures content is scrollable
@@ -492,4 +498,4 @@ class _EllipsePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 
+}

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:bishmi_app/core/hive_model/company_model.dart';
 
+
+import '../../../core/hive_model/company_model.dart';
 import '../../add_cate/add_cate_sc.dart';
 
 class AddWorkerPositionScreen extends StatefulWidget {
@@ -230,7 +231,7 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Text(
-                      "Employee Note",
+                      "Quandity",
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
@@ -238,6 +239,14 @@ class _AddWorkerPositionScreenState extends State<AddWorkerPositionScreen> {
                     label: "Enter Count",
                     controller: _counts,
                     maxLine: 1,
+                  ),
+                  SizedBox(height: 20),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Employee Note",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                   CustomTextField(
                     label: "Enter Employee Note",

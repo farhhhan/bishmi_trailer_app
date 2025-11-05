@@ -1,6 +1,4 @@
-import 'package:bishmi_app/constant/images/constant_images.dart';
-import 'package:bishmi_app/core/firebase_model/user_model.dart';
-import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,11 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import 'package:bishmi_app/core/firebase_model/collection_auth.dart';
+
+import '../../../constant/images/constant_images.dart';
+import '../../../core/firebase_model/collection_auth.dart';
+import '../login_screen/login_screen.dart';
+
 
 class SignupScreen1 extends StatefulWidget {
   const SignupScreen1({super.key});

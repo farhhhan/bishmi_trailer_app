@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:bishmi_app/constant/images/constant_images.dart';
-import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+import '../../../constant/images/constant_images.dart';
 import '../../add_restorent_screen/screen/add_restorent.dart';
+import '../../auth_screen/login_screen/login_screen.dart';
+import '../../pdf/saved_pdfs_page.dart';
 import '../../show_restorent/screen/restorent_screen.dart';
 import '../widget/custom_image.dart';
 
@@ -171,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 10,
                   ),
                   const Text(
-                    "Add new Customer or Restaurant",
+                    "Add new Customer",
                     style: TextStyle(
                         color: Colors.green,
                         fontSize: 14,
@@ -277,56 +279,65 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    width: 160,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        CustomImageView(
-                          fit: BoxFit.contain,
-                          radius: BorderRadius.circular(12),
-                          imagePath: ConstantImages.reportSvg,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Report",
-                          style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: const Color.fromARGB(255, 231, 167, 71)),
-                          child: const Center(
-                            child: Text(
-                              "Show",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
+                  InkWell(
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SavedPdfsPage(),
+                          ));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      width: 160,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                        )
-                      ],
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          CustomImageView(
+                            fit: BoxFit.contain,
+                            radius: BorderRadius.circular(12),
+                            imagePath: ConstantImages.reportSvg,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Text(
+                            "Report",
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: const Color.fromARGB(255, 231, 167, 71)),
+                            child: const Center(
+                              child: Text(
+                                "Show",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   )
                 ],
