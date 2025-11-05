@@ -69,10 +69,14 @@ class Employee {
   final String gender; // 'Male' or 'Female'
 
   @HiveField(4)
-  final String feedBack; // 'Male' or 'Female'
+  final String feedBack;
 
-   @HiveField(5)
-  final String counts; // 'Male' or 'Female'
+  @HiveField(5)
+  final String counts;
+
+  @HiveField(6)
+  String currentStatus;
+  // 👈 Example values: "Pending", "Taking Material", "Stitching Started", "Stitching Completed", "Out for Delivery", "Delivered"
 
   Employee({
     required this.feedBack,
@@ -80,7 +84,8 @@ class Employee {
     required this.position,
     required this.uniformConfig,
     required this.gender,
-    required this.counts
+    required this.counts,
+    this.currentStatus = "Pending", // default
   });
 
   Map<String, dynamic> toJson() {
@@ -91,6 +96,7 @@ class Employee {
       'gender': gender,
       'feedBack': feedBack,
       'counts': counts,
+      'currentStatus': currentStatus,
     };
   }
 }
@@ -408,4 +414,3 @@ class WorkerPosition {
     return uniformItemsByGender[gender] ?? uniformItemsByGender['Male']!;
   }
 }
-

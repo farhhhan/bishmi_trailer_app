@@ -1,7 +1,8 @@
-import 'package:bishmi_app/core/hive_model/company_model.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/hive_model/company_model.dart';
 import 'add_list_members.dart';
 
 class AddNewCustomerScreen extends StatefulWidget {

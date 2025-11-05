@@ -1,4 +1,4 @@
-import 'package:bishmi_app/presentation/auth_screen/login_screen/admin_home_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -109,17 +109,16 @@ class FirebasePosition {
 
   factory FirebasePosition.fromMap(Map<String, dynamic> map) {
     return FirebasePosition(
-      title: map['title'],
-      uniformItemsByGender: Map<String, List<FirebaseUniformItem>>.from(
-        (map['uniformItemsByGender'] as Map).map(
-          (key, value) => MapEntry(
-            key,
-            List<FirebaseUniformItem>.from(
-              (value as List).map((x) => FirebaseUniformItem.fromMap(x))
+        title: map['title'],
+        uniformItemsByGender: Map<String, List<FirebaseUniformItem>>.from(
+          (map['uniformItemsByGender'] as Map).map(
+            (key, value) => MapEntry(
+              key,
+              List<FirebaseUniformItem>.from(
+                  (value as List).map((x) => FirebaseUniformItem.fromMap(x))),
             ),
           ),
-        ),)
-    );
+        ));
   }
 }
 
@@ -129,11 +128,11 @@ class FirebaseService {
 
   Future<void> addCategory(String categoryName) async {
     await _firestore.collection('categories').doc(categoryName).set(
-      FirebaseCategory(
-        name: categoryName,
-        createdAt: DateTime.now(),
-      ).toMap(),
-    );
+          FirebaseCategory(
+            name: categoryName,
+            createdAt: DateTime.now(),
+          ).toMap(),
+        );
   }
 
   Future<List<String>> getCategories() async {
@@ -150,7 +149,8 @@ class FirebaseService {
         .set(position.toMap());
   }
 
-  Future<void> updatePosition(String category, FirebasePosition position) async {
+  Future<void> updatePosition(
+      String category, FirebasePosition position) async {
     await _firestore
         .collection('categories')
         .doc(category)
@@ -185,9 +185,14 @@ class FirebaseService {
 }
 
 // Screens
-class AddCategoryScreen extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
+class AddCategoryScreen extends StatefulWidget {
+  @override
+  State<AddCategoryScreen> createState() => _AddCategoryScreenState();
+}
 
+class _AddCategoryScreenState extends State<AddCategoryScreen> {
+  final TextEditingController _controller = TextEditingController();
+  bool isClicked = false;
   @override
   Widget build(BuildContext context) {
     final firebaseService = Provider.of<FirebaseService>(context);
@@ -233,50 +238,65 @@ class AddCategoryScreen extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 400),
                 child: Card(
                   elevation: 6,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)),
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
-        child: Column(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 36),
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+                      children: [
                         const Text(
                           'Category Name',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
+                        TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(
                             hintText: 'Enter category name',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
                           ),
                         ),
                         const SizedBox(height: 32),
                         ElevatedButton.icon(
-                          icon: const Icon(Icons.save),
+                          icon: isClicked
+                              ? CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Icon(Icons.save),
                           label: const Text('Save Category'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1AB6BB),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-              onPressed: () async {
-                if (_controller.text.isNotEmpty) {
-                  await firebaseService.addCategory(_controller.text);
-                  Navigator.pop(context, _controller.text);
-                }
-              },
-            ),
-          ],
-        ),
+                          onPressed: isClicked
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    isClicked = true;
+                                  });
+                                  if (_controller.text.isNotEmpty) {
+                                    await firebaseService
+                                        .addCategory(_controller.text);
+                                    Navigator.pop(context, _controller.text);
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -304,7 +324,8 @@ class _ViewCategoriesScreenState extends State<ViewCategoriesScreen> {
   }
 
   Future<void> _fetchCategories() async {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    final firebaseService =
+        Provider.of<FirebaseService>(context, listen: false);
     final cats = await firebaseService.getCategories();
     setState(() {
       _categories = cats;
@@ -334,7 +355,8 @@ class _ViewCategoriesScreenState extends State<ViewCategoriesScreen> {
       setState(() {
         _categories?.remove(category);
       });
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService =
+          Provider.of<FirebaseService>(context, listen: false);
       await firebaseService.deleteCategory(category);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Category deleted')),
@@ -382,7 +404,7 @@ class _ViewCategoriesScreenState extends State<ViewCategoriesScreen> {
                     padding: const EdgeInsets.all(20),
                     itemCount: _categories!.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
+                    itemBuilder: (context, index) {
                       final category = _categories![index];
                       return Card(
                         elevation: 4,
@@ -391,7 +413,8 @@ class _ViewCategoriesScreenState extends State<ViewCategoriesScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: ListTile(
-                          leading: const Icon(Icons.category, color: Color(0xFF1AB6BB)),
+                          leading: const Icon(Icons.category,
+                              color: Color(0xFF1AB6BB)),
                           title: Text(
                             category,
                             style: const TextStyle(
@@ -400,13 +423,14 @@ class _ViewCategoriesScreenState extends State<ViewCategoriesScreen> {
                               color: Color(0xFF1983A3),
                             ),
                           ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PositionListScreen(category: category),
-                  ),
-                ),
-                trailing: IconButton(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PositionListScreen(category: category),
+                            ),
+                          ),
+                          trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => _deleteCategory(category),
                           ),
@@ -439,7 +463,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
   }
 
   Future<void> _fetchPositions() async {
-    final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+    final firebaseService =
+        Provider.of<FirebaseService>(context, listen: false);
     final pos = await firebaseService.getPositionsByCategory(widget.category);
     setState(() {
       _positions = pos;
@@ -451,8 +476,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Position'),
-        content: const Text('Do you want to delete this position?'),
+        title: Text('Delete ${position.title}'),
+        content: Text('Do you want to delete this ${position.title}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -469,7 +494,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
       setState(() {
         _positions?.remove(position);
       });
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService =
+          Provider.of<FirebaseService>(context, listen: false);
       await firebaseService.deletePosition(widget.category, position.title);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Position deleted')),
@@ -518,7 +544,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
           elevation: 0,
           title: Text(
             widget.category,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white),
           ),
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -544,14 +571,16 @@ class _PositionListScreenState extends State<PositionListScreen> {
                   : ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 500),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 32),
                         child: ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.zero,
                           itemCount: _positions!.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
                             final position = _positions![index];
                             return Card(
                               elevation: 4,
@@ -560,7 +589,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: ListTile(
-                                leading: const Icon(Icons.work_outline, color: Color(0xFF1AB6BB)),
+                                leading: const Icon(Icons.work_outline,
+                                    color: Color(0xFF1AB6BB)),
                                 title: Text(
                                   position.title,
                                   style: const TextStyle(
@@ -569,30 +599,35 @@ class _PositionListScreenState extends State<PositionListScreen> {
                                     color: Color(0xFF1983A3),
                                   ),
                                 ),
-                subtitle: Text(
+                                subtitle: Text(
                                   'Items: ${position.uniformItemsByGender.values.expand((x) => x).length}',
-                                  style: const TextStyle(color: Color(0xFF1983A3)),
+                                  style:
+                                      const TextStyle(color: Color(0xFF1983A3)),
                                 ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PositionDetailScreen(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PositionDetailScreen(
                                       category: widget.category,
-                      position: position,
+                                      position: position,
                                       isaddbutton: false,
-                    ),
-                  ),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                                      icon: const Icon(Icons.edit, color: Color(0xFF1AB6BB)),
-                                      onPressed: () => _navigateToEditPosition(position),
+                                    ),
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          color: Color(0xFF1AB6BB)),
+                                      onPressed: () =>
+                                          _navigateToEditPosition(position),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () => _deletePosition(position),
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () =>
+                                          _deletePosition(position),
                                     ),
                                   ],
                                 ),
@@ -602,8 +637,8 @@ class _PositionListScreenState extends State<PositionListScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF1AB6BB),
         child: const Icon(Icons.add, color: Colors.white),
@@ -642,7 +677,8 @@ class PositionDetailScreen extends StatelessWidget {
           elevation: 0,
           title: Text(
             position.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white),
           ),
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -652,18 +688,18 @@ class PositionDetailScreen extends StatelessWidget {
           ? FloatingActionButton(
               backgroundColor: const Color(0xFF1AB6BB),
               child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => AddItemsToPositionScreen(
-              category: category,
-              position: position,
-            ),
-          ),
-        ).then((_) {
-          Provider.of<FirebaseService>(context, listen: false)
-              .getPositionsByCategory(category);
-        }),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddItemsToPositionScreen(
+                    category: category,
+                    position: position,
+                  ),
+                ),
+              ).then((_) {
+                Provider.of<FirebaseService>(context, listen: false)
+                    .getPositionsByCategory(category);
+              }),
             )
           : null,
       body: Stack(
@@ -683,35 +719,39 @@ class PositionDetailScreen extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Card(
                   elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 12),
                     child: DefaultTabController(
-        length: position.uniformItemsByGender.keys.length,
-        child: Column(
+                      length: position.uniformItemsByGender.keys.length,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TabBar(
+                        children: [
+                          TabBar(
                             labelColor: const Color(0xFF1AB6BB),
                             unselectedLabelColor: Colors.grey,
                             indicatorColor: const Color(0xFF1AB6BB),
-              tabs: position.uniformItemsByGender.keys
-                  .map((gender) => Tab(text: gender))
-                  .toList(),
-            ),
+                            tabs: position.uniformItemsByGender.keys
+                                .map((gender) => Tab(text: gender))
+                                .toList(),
+                          ),
                           SizedBox(
                             height: 400, // Ensures enough space for TabBarView
-              child: TabBarView(
-                children: position.uniformItemsByGender.entries
-                    .map((entry) => _buildGenderItems(entry.value))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),
+                            child: TabBarView(
+                              children: position.uniformItemsByGender.entries
+                                  .map(
+                                      (entry) => _buildGenderItems(entry.value))
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -736,31 +776,43 @@ class PositionDetailScreen extends StatelessWidget {
         return Card(
           elevation: 2,
           color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: item.isRequired ? Color(0xFF1AB6BB) : Colors.grey, size: 20),
+                    Icon(Icons.check_circle_outline,
+                        color:
+                            item.isRequired ? Color(0xFF1AB6BB) : Colors.grey,
+                        size: 20),
                     const SizedBox(width: 8),
                     Text(
                       item.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1983A3)),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Color(0xFF1983A3)),
                     ),
                     const SizedBox(width: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: item.isRequired ? const Color(0xFF1AB6BB).withOpacity(0.1) : Colors.grey.shade200,
+                        color: item.isRequired
+                            ? const Color(0xFF1AB6BB).withOpacity(0.1)
+                            : Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         item.isRequired ? 'Required' : 'Optional',
                         style: TextStyle(
-                          color: item.isRequired ? const Color(0xFF1AB6BB) : Colors.grey,
+                          color: item.isRequired
+                              ? const Color(0xFF1AB6BB)
+                              : Colors.grey,
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
@@ -770,22 +822,27 @@ class PositionDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 if (item.measurementFields.isNotEmpty) ...[
-                  const Text('Measurement Fields:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  const Text('Measurement Fields:',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   const SizedBox(height: 6),
                   ...item.measurementFields.map((field) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
-                            const Icon(Icons.straighten, size: 16, color: Color(0xFF1AB6BB)),
+                            const Icon(Icons.straighten,
+                                size: 16, color: Color(0xFF1AB6BB)),
                             const SizedBox(width: 6),
                             Text(
                               field.name,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               '(${field.unit})',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -814,12 +871,12 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
   final TextEditingController _titleController = TextEditingController();
   String? _selectedGender;
 
+  bool isClicked = false;
   @override
   Widget build(BuildContext context) {
     final firebaseService = Provider.of<FirebaseService>(context);
 
     return Scaffold(
-      
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBar(
@@ -834,15 +891,15 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
           ),
           elevation: 0,
           title: const Text(
-            'Add Position',
+            'Add Item',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
       ),
-      body: Stack(
-        children:[ Container(
+      body: Stack(children: [
+        Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Color(0xFFFDF6E3), Color(0xFFE3F6F5)],
@@ -854,46 +911,49 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Form(
-        key: _formKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     Card(
                       elevation: 4,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
                         padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _titleController,
                               decoration: InputDecoration(
                                 labelText: 'Position Name',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Required' : null,
-              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? 'Required' : null,
+                            ),
                             const SizedBox(height: 24),
-                            const Text('Select Gender:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              Row(
+                            const Text('Select Gender:',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600)),
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Radio<String>(
-                    value: 'Male',
-                    groupValue: _selectedGender,
-                    onChanged: (value) =>
-                        setState(() => _selectedGender = value),
-                  ),
+                              children: [
+                                Radio<String>(
+                                  value: 'Male',
+                                  groupValue: _selectedGender,
+                                  onChanged: (value) =>
+                                      setState(() => _selectedGender = value),
+                                ),
                                 const Text('Male'),
                                 const SizedBox(width: 20),
-                  Radio<String>(
-                    value: 'Female',
-                    groupValue: _selectedGender,
-                    onChanged: (value) =>
-                        setState(() => _selectedGender = value),
-                  ),
+                                Radio<String>(
+                                  value: 'Female',
+                                  groupValue: _selectedGender,
+                                  onChanged: (value) =>
+                                      setState(() => _selectedGender = value),
+                                ),
                                 const Text('Female'),
                               ],
                             ),
@@ -901,54 +961,67 @@ class _AddPositionScreenState extends State<AddPositionScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
-                                icon: const Icon(Icons.save),
+                                icon: isClicked
+                                    ? CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : Icon(Icons.save),
                                 label: const Text('Save Position'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF1AB6BB),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                 ),
-                onPressed: () async {
-                  if (_formKey.currentState!.validate() &&
-                      _selectedGender != null) {
-                    final newPosition = FirebasePosition(
-                      title: _titleController.text,
-                      uniformItemsByGender: {
-                        _selectedGender!: []
-                      },
-                    );
-                    await firebaseService.addPosition(
-                      widget.category,
-                      newPosition,
-                    );
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PositionDetailScreen(
-                          category: widget.category,
-                          position: newPosition,
-                                          isaddbutton: true,
+                                onPressed: isClicked
+                                    ? null
+                                    : () async {
+                                        if (_formKey.currentState!.validate() &&
+                                            _selectedGender != null) {
+                                          setState(() {
+                                            isClicked = true;
+                                          });
+                                          final newPosition = FirebasePosition(
+                                            title: _titleController.text,
+                                            uniformItemsByGender: {
+                                              _selectedGender!: []
+                                            },
+                                          );
+                                          await firebaseService.addPosition(
+                                            widget.category,
+                                            newPosition,
+                                          );
+                                          // Navigator.pushReplacement(
+                                          //   context,
+                                          //   MaterialPageRoute(
+                                          //     builder: (_) => PositionDetailScreen(
+                                          //       category: widget.category,
+                                          //       position: newPosition,
+                                          //       isaddbutton: true,
+                                          //     ),
+                                          //   ),
+                                          // );
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  }
-                },
-                              ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ),
-     ] ),
+      ]),
     );
   }
 }
@@ -1056,21 +1129,21 @@ class _AddItemsToPositionScreenState extends State<AddItemsToPositionScreen> {
                 SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-    onPressed: () {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (_) => PositionListScreen(
-            category: widget.category,
-          ),
-        ),
-        (Route<dynamic> route) => false, // This removes all previous routes
-      );
-    },
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PositionListScreen(
+                            category: widget.category,
+                          ),
+                        ),
+                        (Route<dynamic> route) =>
+                            false, // This removes all previous routes
+                      );
+                    },
                     child: Text('Save Items'),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -1195,30 +1268,30 @@ class _EditPositionScreenState extends State<EditPositionScreen> {
           ),
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
+          actions: [
+            IconButton(
               icon: const Icon(Icons.save, color: Colors.white),
-            onPressed: () async {
-              if (_titleController.text.isNotEmpty) {
-                _editedPosition = FirebasePosition(
-                  title: _titleController.text,
-                  uniformItemsByGender: _editedPosition.uniformItemsByGender,
-                );
+              onPressed: () async {
+                if (_titleController.text.isNotEmpty) {
+                  _editedPosition = FirebasePosition(
+                    title: _titleController.text,
+                    uniformItemsByGender: _editedPosition.uniformItemsByGender,
+                  );
 
-                await firebaseService.updatePosition(
-                  widget.category,
-                  _editedPosition,
-                );
+                  await firebaseService.updatePosition(
+                    widget.category,
+                    _editedPosition,
+                  );
 
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Position updated')),
-                );
-              }
-            },
-          ),
-        ],
-      ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
@@ -1237,28 +1310,34 @@ class _EditPositionScreenState extends State<EditPositionScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+                  children: [
                     Card(
                       elevation: 4,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const Text('Position Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                            const Text('Position Name',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 16)),
                             const SizedBox(height: 8),
-            TextField(
-              controller: _titleController,
+                            TextField(
+                              controller: _titleController,
                               decoration: InputDecoration(
                                 hintText: 'Enter position name',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
                               ),
                             ),
                           ],
@@ -1266,105 +1345,211 @@ class _EditPositionScreenState extends State<EditPositionScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-            ..._editedPosition.uniformItemsByGender.entries.map((entry) {
+                    ..._editedPosition.uniformItemsByGender.entries
+                        .map((entry) {
                       return Card(
                         elevation: 3,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16, horizontal: 16),
                           child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${entry.key} Uniform Items:',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1983A3)),
-                  ),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${entry.key} Uniform Items:',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1983A3)),
+                              ),
                               const SizedBox(height: 10),
-                  ...entry.value.map((item) {
+                              ...entry.value.map((item) {
                                 return Card(
                                   elevation: 1,
                                   color: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                   child: ListTile(
-                                    leading: const Icon(Icons.check_box, color: Color(0xFF1AB6BB)),
+                                    leading: const Icon(Icons.check_box,
+                                        color: Color(0xFF1AB6BB)),
                                     title: Text(
                                       item.name,
-                                      style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1983A3)),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1983A3)),
                                     ),
-                      subtitle: Text(
+                                    subtitle: Text(
                                       '${item.measurementFields.length} measurement fields',
-                                      style: const TextStyle(color: Color(0xFF1983A3)),
+                                      style: const TextStyle(
+                                          color: Color(0xFF1983A3)),
                                     ),
-                      trailing: IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          setState(() {
-                                          _editedPosition.uniformItemsByGender[entry.key]!.remove(item);
-                          });
-                        },
-                      ),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AddMeasurementFieldsScreen(
-                            item: item,
-                            onSave: (updatedItem) {
-                              setState(() {
-                                              final idx = _editedPosition.uniformItemsByGender[entry.key]!.indexOf(item);
-                                              _editedPosition.uniformItemsByGender[entry.key]![idx] = updatedItem;
-                              });
-                            },
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        setState(() {
+                                          _editedPosition
+                                              .uniformItemsByGender[entry.key]!
+                                              .remove(item);
+                                        });
+                                      },
+                                    ),
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            AddMeasurementFieldsScreen(
+                                          item: item,
+                                          onSave: (updatedItem) {
+                                            setState(() {
+                                              final idx = _editedPosition
+                                                  .uniformItemsByGender[
+                                                      entry.key]!
+                                                  .indexOf(item);
+                                              _editedPosition
+                                                          .uniformItemsByGender[
+                                                      entry.key]![idx] =
+                                                  updatedItem;
+                                            });
+                                          },
                                         ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               const SizedBox(height: 10),
                               ElevatedButton.icon(
-                                icon: const Icon(Icons.add, color: Colors.white),
+                                icon:
+                                    const Icon(Icons.add, color: Colors.white),
                                 label: Text('Add Items to ${entry.key}'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF1AB6BB),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                 ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AddUniformItemsScreen(
-                            category: widget.category,
-                            positionTitle: _editedPosition.title,
-                            gender: entry.key,
-                                        existingItems: _editedPosition.uniformItemsByGender[entry.key]!,
+                                onPressed: () {
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (_) => AddUniformItemsScreen(
+                                  //       category: widget.category,
+                                  //       positionTitle: _editedPosition.title,
+                                  //       gender: entry.key,
+                                  //       existingItems: _editedPosition
+                                  //           .uniformItemsByGender[entry.key]!,
+                                  //     ),
+                                  //   ),
+                                  // ).then((newItems) {
+                                  //   if (newItems != null) {
+                                  //     setState(() {
+                                  //       _editedPosition.uniformItemsByGender[
+                                  //           entry.key] = newItems;
+                                  //     });
+                                  //   }
+                                  // });
+                                  _addNewItem(context, entry.key);
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      ).then((newItems) {
-                        if (newItems != null) {
-                          setState(() {
-                                        _editedPosition.uniformItemsByGender[entry.key] = newItems;
-                          });
-                        }
-                      });
-                    },
-                  ),
-                ],
-                          ),
-                        ),
-              );
-            }).toList(),
-          ],
-        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _addNewItem(BuildContext context, String genderKey) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController();
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // Rounded edges
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.add_circle_outline, color: Colors.deepPurple),
+              SizedBox(width: 8),
+              Text(
+                'Add New Item',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+            ],
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: 'Item Name',
+              labelStyle: TextStyle(color: Colors.deepPurple),
+              prefixIcon:
+                  Icon(Icons.shopping_bag_outlined, color: Colors.deepPurple),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.deepPurple.shade200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+              ),
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            TextButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(Icons.close, color: Colors.grey),
+              label: Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  Navigator.pop(context, controller.text);
+                }
+              },
+              icon: Icon(Icons.check_circle, color: Colors.white),
+              label: Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      final newItem = FirebaseUniformItem(name: result);
+      setState(() {
+        _editedPosition.uniformItemsByGender[genderKey]!.add(newItem);
+      });
+    }
   }
 }
 
@@ -1504,6 +1689,7 @@ class AddMeasurementFieldsScreen extends StatefulWidget {
   final Function(FirebaseUniformItem) onSave;
 
   const AddMeasurementFieldsScreen({
+    super.key,
     required this.item,
     required this.onSave,
   });
@@ -1529,18 +1715,38 @@ class _AddMeasurementFieldsScreenState
     );
   }
 
+  void _addField() {
+    if (_fieldNameController.text.isNotEmpty &&
+        _unitController.text.isNotEmpty) {
+      setState(() {
+        _currentItem.measurementFields.add(
+          MeasurementField(
+            name: _fieldNameController.text,
+            unit: _unitController.text,
+          ),
+        );
+        _fieldNameController.clear();
+        _unitController.clear();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Measurement Fields for ${_currentItem.name}'),
+        title: Text(
+          "Measurement Fields",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.save),
+            icon: Icon(Icons.save, color: Color(0xFF1AB6BB)),
             onPressed: () {
               widget.onSave(_currentItem);
               Navigator.pop(context);
@@ -1548,66 +1754,96 @@ class _AddMeasurementFieldsScreenState
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _fieldNameController,
-                    decoration: InputDecoration(labelText: 'Field Name'),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _unitController,
-                    decoration:
-                        InputDecoration(labelText: 'Unit (e.g., inches)'),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () {
-                    if (_fieldNameController.text.isNotEmpty &&
-                        _unitController.text.isNotEmpty) {
-                      setState(() {
-                        _currentItem.measurementFields.add(
-                          MeasurementField(
-                            name: _fieldNameController.text,
-                            unit: _unitController.text,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _fieldNameController,
+                        decoration: InputDecoration(
+                          labelText: "Field Name",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                        _fieldNameController.clear();
-                        _unitController.clear();
-                      });
-                    }
-                  },
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _unitController,
+                        decoration: InputDecoration(
+                          labelText: "Unit (e.g., inches)",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    CircleAvatar(
+                      backgroundColor: Color(0xFF1AB6BB),
+                      child: IconButton(
+                        icon: Icon(Icons.add, color: Colors.white),
+                        onPressed: _addField,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _currentItem.measurementFields.length,
-              itemBuilder: (context, index) {
-                final field = _currentItem.measurementFields[index];
-                return ListTile(
-                  title: Text(field.name),
-                  subtitle: Text(field.unit),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => setState(() {
-                      _currentItem.measurementFields.removeAt(index);
-                    }),
-                  ),
-                );
-              },
+            const SizedBox(height: 20),
+            Expanded(
+              child: _currentItem.measurementFields.isEmpty
+                  ? Center(
+                      child: Text(
+                        "No fields added yet",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    )
+                  : Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: _currentItem.measurementFields.map((field) {
+                        return Chip(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 3,
+                          label: Text(
+                            "${field.name} (${field.unit})",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Color(0xFF1AB6BB),
+                          deleteIcon: Icon(Icons.close, color: Colors.black),
+                          onDeleted: () {
+                            setState(() {
+                              _currentItem.measurementFields.remove(field);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

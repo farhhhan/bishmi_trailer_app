@@ -1,12 +1,14 @@
-import 'package:bishmi_app/presentation/auth_screen/login_screen/login_screen.dart';
-import 'package:bishmi_app/presentation/home_screen/screen/home_screen.dart';
-import 'package:bishmi_app/presentation/auth_screen/login_screen/admin_home_screen.dart';
+
+
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constant/images/constant_images.dart';
+import '../auth_screen/login_screen/admin_home_screen.dart';
+import '../auth_screen/login_screen/login_screen.dart';
+import '../home_screen/screen/home_screen.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

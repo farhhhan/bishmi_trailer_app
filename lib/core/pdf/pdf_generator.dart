@@ -2,8 +2,12 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:bishmi_app/core/hive_model/company_model.dart';
+
 import 'package:collection/collection.dart';
+
+import '../hive_model/company_model.dart';
+import 'drive_upload.dart';
+
 
 //mm
 class PdfGenerator {
@@ -84,9 +88,27 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
       fixedHeaders = ['Sl', 'Name', 'Qnt', 'Type', 'Size', 'Material', 'Gender'];
     }
     // Dynamic measurement columns
+       // Dynamic measurement columns
     final measurementHeaders = measurementFields.toList();
     // All headers combined, Note at the end
-    final allHeaders = [...fixedHeaders, ...measurementHeaders, 'Note'];
+    final allHeaders = [...fixedHeaders, ...measurementHeaders, 'Status', 'Note'];
+
+    // Helpers for status color
+    PdfColor statusBgColor(String status) {
+      final s = status.toLowerCase().trim();
+      if (s.contains('delivered')) return PdfColors.green500;
+      if (s.contains('stitching completed') || s.contains('stitching complated')) return PdfColors.orange400;
+      if (s.contains('material collected') || s.contains('taking material') || s.contains('material')) return PdfColors.yellow500;
+      if (s.contains('stitching started') || s.contains('stitching')) return PdfColors.blue500;
+      // default: pending
+      return PdfColors.red400;
+    }
+
+    PdfColor statusTextColor(PdfColor bg) {
+      // Choose contrast: dark text on light backgrounds, white on darker
+      final darkBg = [PdfColors.green500, PdfColors.orange400, PdfColors.blue500, PdfColors.red400];
+      return darkBg.contains(bg) ? PdfColors.white : PdfColors.black;
+    }
     // Create column widths map
     final Map<int, pw.TableColumnWidth> columnWidths = {};
     for (int i = 0; i < allHeaders.length; i++) {
@@ -258,6 +280,26 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
               ),
             ),
           ));
+          // Status
+
+                    // Status
+          final bg = statusBgColor(e.currentStatus);
+          final fg = statusTextColor(bg);
+          rowCells.add(
+            pw.Container(
+              padding: const pw.EdgeInsets.symmetric(vertical: 2, horizontal: 3),
+              decoration: pw.BoxDecoration(
+                color: bg,
+                border: pw.Border.all(color: PdfColors.white, width: 1),
+                borderRadius: pw.BorderRadius.circular(2),
+              ),
+              child: pw.Text(
+                e.currentStatus,
+                style: pw.TextStyle(fontSize: 9, color: fg, fontWeight: pw.FontWeight.bold),
+                textAlign: pw.TextAlign.center,
+              ),
+            ),
+          );
           // Note (last column)
           rowCells.add(
             pw.Container(
@@ -514,25 +556,19 @@ pw.Widget employeeTable(List<Employee> employees, String itemName, PdfColor colo
     ),
   );
 
-  final pdfBytes = await pdf.save();
+    final pdfBytes = await pdf.save();
 
-  // Optionally upload to Google Drive
-  if (uploadToDrive && serviceAccountJson != null) {
-    // Format the file name: clientName_report_dd-MM-yyyy.pdfr
-    String clientName = restaurant.name.replaceAll(' ', '_');
-    String dateStr = (restaurant.date).replaceAll('/', '-');
-    String fileName = '${clientName}_report_${dateStr}.pdf';
-    // Save to a temporary file
-    final tempDir = Directory.systemTemp;
-    final tempFile = File('${tempDir.path}/$fileName');
-    await tempFile.writeAsBytes(pdfBytes);
-    // await uploadPdfToDrive(
-    //   pdfFile: tempFile,
-    //   serviceAccountJson: serviceAccountJson,
-    //   folderId: driveFolderId,
-    // );
-    // Optionally delete the temp file after upload
-    await tempFile.delete();
+  if (uploadToDrive && serviceAccountJson != null && driveFolderId != null && driveFolderId.isNotEmpty) {
+    final clientName = restaurant.name.replaceAll(' ', '_');
+    final dateStr = restaurant.date.replaceAll('/', '-');
+    final fileName = '${clientName}_report_${dateStr}.pdf';
+
+    await uploadPdfToDriveOrUpdate(
+      pdfBytes: pdfBytes,
+      fileName: fileName,
+      folderId: driveFolderId,
+      serviceAccountJson: serviceAccountJson,
+    );
   }
 
   return pdfBytes;

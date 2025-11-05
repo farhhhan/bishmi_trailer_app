@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:bishmi_app/firebase_options.dart';
-import 'package:bishmi_app/presentation/add_cate/add_category.dart';
-import 'package:bishmi_app/presentation/splash_screen/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -12,7 +9,9 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/hive_model/company_model.dart';
+import 'firebase_options.dart';
 import 'presentation/add_cate/add_cate_sc.dart';
+import 'presentation/splash_screen/splash_screen.dart';
 
 void main() async {
   tz.initializeTimeZones();
@@ -32,7 +31,6 @@ void main() async {
   // print(await file.exists()); // Should print true if the file is there
   // print(await file.readAsString()); // Should print the file contents
 
-
   runApp(const MyApp());
 }
 
@@ -45,7 +43,6 @@ class MyApp extends StatelessWidget {
       create: (_) => FirebaseService(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-     
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
